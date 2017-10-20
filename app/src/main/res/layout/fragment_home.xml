@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/ll"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+    <!-- 定位、天气、搜索栏 -->
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/red"
+        android:focusable="true"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/receiving_address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:drawableLeft="@drawable/test22"
+            android:drawablePadding="5dp"
+            android:gravity="center"
+            android:padding="10dp"
+            android:textColor="#fff"
+            android:textSize="16sp"
+            android:visibility="gone" />
+        <!--android:drawableRight="@drawable/test23"-->
+
+        <ImageView
+            android:id="@+id/scan"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:padding="10dp"
+            android:src="@drawable/search_light" />
+
+    </RelativeLayout>
+
+    <android.support.v4.view.ViewPager
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:visibility="gone" />
+
+    <com.zhouwei.mzbanner.MZBannerView
+        android:id="@+id/my_banner"
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        app:canLoop="true"
+        app:open_mz_mode="false"
+        >
+    </com.zhouwei.mzbanner.MZBannerView>
+    <!--<RelativeLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="180dp">-->
+
+        <!--<android.support.v4.view.ViewPager-->
+            <!--android:id="@+id/vp_main"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent" />-->
+
+        <!--<LinearLayout-->
+            <!--android:id="@+id/ll_main"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_alignParentBottom="true"-->
+            <!--android:layout_marginBottom="10dp"-->
+            <!--android:gravity="center"-->
+            <!--android:orientation="horizontal" />-->
+    <!--</RelativeLayout>-->
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@drawable/index_bg">
+
+        <LinearLayout
+            android:id="@+id/fragment_layout_express"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="20dp">
+
+            <LinearLayout
+                android:id="@+id/fragment_express"
+                android:layout_width="140dp"
+                android:layout_height="150dp"
+                android:background="@drawable/express_selector"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="80dp"
+                    android:layout_height="60dp"
+                    android:src="@drawable/city_logo" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="同城快递"
+                    android:textColor="@color/white" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/fragment_express1"
+                android:layout_width="140dp"
+                android:layout_height="150dp"
+                android:layout_marginLeft="50dp"
+                android:background="@drawable/express1_selector"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="80dp"
+                    android:layout_height="60dp"
+                    android:src="@drawable/pickup_logo" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="快递公司"
+                    android:textColor="@color/white" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/fragment_home_logo"
+            android:layout_width="140dp"
+            android:layout_height="150dp"
+            android:layout_above="@+id/fragment_layout_express"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="-10dp"
+            android:background="@mipmap/home_logo"
+            android:clickable="true" />
+
+        <!--<TextView-->
+            <!--android:id="@+id/fragment_home_temperature"-->
+            <!--android:layout_width="50dp"-->
+            <!--android:layout_height="50dp"-->
+            <!--android:layout_marginLeft="50dp"-->
+            <!--android:layout_marginTop="20dp"-->
+            <!--android:background="@drawable/frag_home_weather_bg"-->
+            <!--android:gravity="center"-->
+            <!--android:visibility="gone" />-->
+
+        <ImageView
+            android:id="@+id/share"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="30dp"
+            android:background="?attr/selectableItemBackground"
+            android:src="@drawable/share_circle" />
+
+        <ImageView
+            android:id="@+id/hrpkg"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="30dp"
+            android:layout_marginTop="30dp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:src="@drawable/hrpkg" />
+
+        <LinearLayout
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="50dp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/frag_home_weather_bg"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:src="@mipmap/ic_launcher" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="10sp" />
+        </LinearLayout>
+    </RelativeLayout>
+
+</LinearLayout>

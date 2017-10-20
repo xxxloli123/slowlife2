@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/interfaceconfig/interfaceconfig.iml" filepath="$PROJECT_DIR$/interfaceconfig/interfaceconfig.iml" />
+      <module fileurl="file://$PROJECT_DIR$/map/map.iml" filepath="$PROJECT_DIR$/map/map.iml" />
+      <module fileurl="file://$PROJECT_DIR$/mzbanner/mzbanner.iml" filepath="$PROJECT_DIR$/mzbanner/mzbanner.iml" />
+      <module fileurl="file://$PROJECT_DIR$/pay/pay.iml" filepath="$PROJECT_DIR$/pay/pay.iml" />
+      <module fileurl="file://$PROJECT_DIR$/share&amp;sign/share&amp;sign.iml" filepath="$PROJECT_DIR$/share&amp;sign/share&amp;sign.iml" />
+      <module fileurl="file://$PROJECT_DIR$/slowlife2.iml" filepath="$PROJECT_DIR$/slowlife2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/util/util.iml" filepath="$PROJECT_DIR$/util/util.iml" />
+      <module fileurl="file://$PROJECT_DIR$/xgpush/xgpush.iml" filepath="$PROJECT_DIR$/xgpush/xgpush.iml" />
+      <module fileurl="file://$PROJECT_DIR$/zxing/zxing.iml" filepath="$PROJECT_DIR$/zxing/zxing.iml" />
+    </modules>
+  </component>
+</project>

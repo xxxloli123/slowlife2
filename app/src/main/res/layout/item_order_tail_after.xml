@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff"
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:id="@+id/layout1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <View
+            android:id="@+id/view_1"
+            android:layout_width="1dp"
+            android:layout_height="10dp"
+            android:layout_marginLeft="23dp"
+            android:background="#A6A6A6" />
+        <ImageView
+            android:id="@+id/image_1"
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:layout_marginLeft="16dp"
+            android:background="@drawable/line1"
+            android:visibility="gone"/>
+        <ImageView
+            android:id="@+id/image_2"
+            android:layout_width="8dp"
+            android:layout_height="8dp"
+            android:layout_marginLeft="19dp"
+            android:background="@drawable/line2" />
+        <View
+            android:id="@+id/view_2"
+            android:layout_width="1dp"
+            android:layout_height="45dp"
+            android:layout_marginLeft="23dp"
+            android:background="#A6A6A6" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_toRightOf="@+id/red_layout"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="16dp"
+        android:gravity="center_vertical">
+        <RelativeLayout
+            android:id="@+id/layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/order_state_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="订单已取消"
+                android:textSize="12sp"
+                android:textColor="@color/red"/>
+            <TextView
+                android:id="@+id/time_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2017-02-03 14:29"
+                android:textSize="12sp"
+                android:textColor="#8f8f8f"
+                android:layout_alignParentRight="true"/>
+        </RelativeLayout>
+        <TextView
+            android:id="@+id/order_reason_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="系统取消了订单，理由是超过了十五分钟未支付"
+            android:textSize="10sp"
+            android:textColor="#8f8f8f"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="4dp" />
+    </LinearLayout>
+</LinearLayout>

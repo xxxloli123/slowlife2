@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:myradio="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical"
+    android:fitsSystemWindows="true">
+
+    <RelativeLayout
+        android:id="@+id/top_layout"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:background="@color/red">
+
+        <RelativeLayout
+            android:id="@+id/back_rl"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:paddingLeft="16dp">
+
+            <ImageView
+                android:layout_width="12dp"
+                android:layout_height="18dp"
+                android:layout_centerVertical="true"
+                android:background="@drawable/back" />
+        </RelativeLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="举报商家"
+            android:textColor="@color/white"
+            android:textSize="16sp" />
+    </RelativeLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="10dp"
+        android:text="选择举报类型"
+        android:textColor="@color/text_color"
+        android:textSize="12sp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/line_color" />
+
+    <RadioGroup
+        android:id="@+id/radioGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="10dp"
+        android:orientation="vertical">
+
+        <com.android.slowlife.view.MyRadioButton
+            android:id="@+id/radio1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:button="@null"
+            android:clickable="true"
+            android:drawablePadding="10dp"
+            android:gravity="center_vertical"
+            android:text="商家资质问题"
+            android:textColor="@color/text_color"
+            android:textSize="12sp"
+            myradio:drawableLeft="@drawable/radio_selecter"
+            myradio:drawableSize="16dp" />
+
+        <RadioGroup
+            android:id="@+id/radioGroup1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="30dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <com.android.slowlife.view.MyRadioButton
+                android:id="@+id/radio1_1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:button="@null"
+                android:clickable="true"
+                android:drawablePadding="10dp"
+                android:gravity="center_vertical"
+                android:text="商家营业执照或经营许可证不符"
+                android:textColor="@color/text_color"
+                android:textSize="12sp"
+                myradio:drawableLeft="@drawable/radio_selecter"
+                myradio:drawableSize="16dp" />
+
+            <com.android.slowlife.view.MyRadioButton
+                android:id="@+id/radio1_2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:button="@null"
+                android:clickable="true"
+                android:drawablePadding="10dp"
+                android:gravity="center_vertical"
+                android:text="商家营业执照或经营许可证缺失"
+                android:textColor="@color/text_color"
+                android:textSize="12sp"
+                myradio:drawableLeft="@drawable/radio_selecter"
+                myradio:drawableSize="16dp" />
+        </RadioGroup>
+
+        <com.android.slowlife.view.MyRadioButton
+            android:id="@+id/radio2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:button="@null"
+            android:clickable="true"
+            android:drawablePadding="10dp"
+            android:gravity="center_vertical"
+            android:text="商家信息问题"
+            android:textColor="@color/text_color"
+            android:textSize="12sp"
+            myradio:drawableLeft="@drawable/radio_selecter"
+            myradio:drawableSize="16dp" />
+
+        <RadioGroup
+            android:id="@+id/radioGroup2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="30dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="10dp"
+            android:orientation="vertical">
+
+            <RadioGroup
+                android:id="@+id/radioGroup2_2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <com.android.slowlife.view.MyRadioButton
+                    android:id="@+id/radio2_1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:button="@null"
+                    android:clickable="true"
+                    android:drawablePadding="10dp"
+                    android:gravity="center_vertical"
+                    android:text="商家地址有误"
+                    android:textColor="@color/text_color"
+                    android:textSize="12sp"
+                    myradio:drawableLeft="@drawable/radio_selecter"
+                    myradio:drawableSize="16dp" />
+
+                <com.android.slowlife.view.MyRadioButton
+                    android:id="@+id/radio2_2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:button="@null"
+                    android:clickable="true"
+                    android:drawablePadding="10dp"
+                    android:gravity="center_vertical"
+                    android:text="商家电话有误"
+                    android:textColor="@color/text_color"
+                    android:textSize="12sp"
+                    myradio:drawableLeft="@drawable/radio_selecter"
+                    myradio:drawableSize="16dp" />
+            </RadioGroup>
+
+            <com.android.slowlife.view.MyRadioButton
+                android:id="@+id/radio2_3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:button="@null"
+                android:clickable="true"
+                android:drawablePadding="10dp"
+                android:gravity="center_vertical"
+                android:text="商家图片与实景不符"
+                android:textColor="@color/text_color"
+                android:textSize="12sp"
+                myradio:drawableLeft="@drawable/radio_selecter"
+                myradio:drawableSize="16dp" />
+        </RadioGroup>
+
+        <com.android.slowlife.view.MyRadioButton
+            android:id="@+id/radio3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:button="@null"
+            android:clickable="true"
+            android:drawablePadding="10dp"
+            android:gravity="center_vertical"
+            android:text="商家品类问题"
+            android:textColor="@color/text_color"
+            android:textSize="12sp"
+            myradio:drawableLeft="@drawable/radio_selecter"
+            myradio:drawableSize="16dp" />
+
+        <RadioGroup
+            android:id="@+id/radioGroup3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="30dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <com.android.slowlife.view.MyRadioButton
+                android:id="@+id/radio3_1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:button="@null"
+                android:clickable="true"
+                android:drawablePadding="10dp"
+                android:gravity="center_vertical"
+                android:text="商家品类错误"
+                android:textColor="@color/text_color"
+                android:textSize="12sp"
+                myradio:drawableLeft="@drawable/radio_selecter"
+                myradio:drawableSize="16dp" />
+
+            <com.android.slowlife.view.MyRadioButton
+                android:id="@+id/radio3_2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:button="@null"
+                android:clickable="true"
+                android:drawablePadding="10dp"
+                android:gravity="center_vertical"
+                android:text="商家未设置品类"
+                android:textColor="@color/text_color"
+                android:textSize="12sp"
+                myradio:drawableLeft="@drawable/radio_selecter"
+                myradio:drawableSize="16dp" />
+        </RadioGroup>
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/submit_bt"
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/login_corners_bgall"
+        android:text="提交"
+        android:textColor="@color/white"
+        android:textSize="16sp" />
+</LinearLayout>

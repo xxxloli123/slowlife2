@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:fitsSystemWindows="true">
+    <RelativeLayout
+        android:id="@+id/top_layout"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:background="@color/red">
+
+        <RelativeLayout
+            android:id="@+id/back_rl"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:paddingLeft="16dp">
+
+            <ImageView
+                android:layout_width="12dp"
+                android:layout_height="18dp"
+                android:layout_centerVertical="true"
+                android:background="@drawable/back" />
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/title_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="天天特价"
+            android:textColor="@color/white"
+            android:textSize="16sp" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="234dp"/>
+        <GridView
+            android:id="@+id/gridView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:numColumns="2"
+            android:horizontalSpacing="10dp"
+            android:verticalSpacing="10dp"
+            android:scrollbars="none"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="80dp"
+            android:background="@drawable/solid_white_bgall"
+            android:padding="14dp">
+
+        </GridView>
+    </RelativeLayout>
+</LinearLayout>

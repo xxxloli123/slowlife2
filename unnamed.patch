@@ -1,0 +1,3867 @@
+Index: xgpush/src/main/java/com/slowlife/xgpush/XgReceiver.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- xgpush/src/main/java/com/slowlife/xgpush/XgReceiver.java	(date 1493888251000)
++++ xgpush/src/main/java/com/slowlife/xgpush/XgReceiver.java	(revision )
+@@ -1,6 +1,7 @@
+ package com.slowlife.xgpush;
+ 
+ import android.content.Context;
++import android.widget.Toast;
+ 
+ import com.tencent.android.tpush.XGPushBaseReceiver;
+ import com.tencent.android.tpush.XGPushClickedResult;
+@@ -8,6 +9,9 @@
+ import com.tencent.android.tpush.XGPushShowedResult;
+ import com.tencent.android.tpush.XGPushTextMessage;
+ 
++import java.util.ArrayList;
++import java.util.List;
++
+ /**
+  * Created by sgrape on 2017/4/29.
+  */
+@@ -37,15 +41,56 @@
+     @Override
+     public void onTextMessage(Context context, XGPushTextMessage xgPushTextMessage) {
+         System.out.println(xgPushTextMessage);
++        PushObserver.notifyPsuh("title=" + xgPushTextMessage.getTitle() +
++                "\ncontent=" + xgPushTextMessage.getContent() +
++                "\ncustomContent=" + xgPushTextMessage.getCustomContent());
+     }
+ 
+     @Override
+     public void onNotifactionClickedResult(Context context, XGPushClickedResult xgPushClickedResult) {
+         System.out.println(xgPushClickedResult);
++        Toast.makeText(context, "点击了sdk集成的通知", Toast.LENGTH_SHORT).show();
+     }
+ 
+     @Override
+     public void onNotifactionShowedResult(Context context, XGPushShowedResult xgPushShowedResult) {
+         System.out.println(xgPushShowedResult);
++
++    }
++
++
++    public static interface PushCallback {
++
++        void onPush(XGPushTextMessage xgPushTextMessage);
++
++        void onPush(String message);
++    }
++
++    public static class PushObserver {
++        private static List<PushCallback> callbacks = new ArrayList<>();
++
++        public static void regisiter(PushCallback callback) {
++            if (!callbacks.contains(callback)) callbacks.add(callback);
++        }
++
++        public static void unRegisiter(PushCallback callback) {
++            if (callbacks.contains(callback)) callbacks.remove(callback);
++        }
++
++        public void clear() {
++            callbacks.clear();
++        }
++
++        public static void notifyPsuh(XGPushTextMessage xgPushTextMessage) {
++            for (PushCallback callback : callbacks) {
++                callback.onPush(xgPushTextMessage);
++            }
++        }
++
++        public static void notifyPsuh(String message) {
++            for (PushCallback callback : callbacks) {
++                callback.onPush(message);
++            }
++        }
+     }
+ }
+Index: app/src/main/java/com/android/slowlife/fragment/NoteLoginFragment.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/android/slowlife/fragment/NoteLoginFragment.java	(date 1493888251000)
++++ app/src/main/java/com/android/slowlife/fragment/NoteLoginFragment.java	(revision )
+@@ -4,6 +4,7 @@
+ import android.graphics.Color;
+ import android.os.Bundle;
+ import android.os.Handler;
++import android.os.Looper;
+ import android.os.Message;
+ import android.support.annotation.Nullable;
+ import android.support.v4.app.Fragment;
+@@ -185,7 +186,13 @@
+         okhttp.newCall(request).enqueue(new Callback() {
+             @Override
+             public void onFailure(Call call, IOException e) {
++                new Handler(Looper.getMainLooper()).post(new Runnable() {
++                    @Override
++                    public void run() {
++
+-                Toast.makeText(getContext(), "获取失败", Toast.LENGTH_SHORT).show();
++                        Toast.makeText(getContext(), "获取失败", Toast.LENGTH_SHORT).show();
++                    }
++                });
+             }
+ 
+             @Override
+Index: map/src/main/java/com/slowlife/map/SearchAddrActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- map/src/main/java/com/slowlife/map/SearchAddrActivity.java	(revision )
++++ map/src/main/java/com/slowlife/map/SearchAddrActivity.java	(revision )
+@@ -0,0 +1,204 @@
++package com.slowlife.map;
++
++import android.app.Activity;
++import android.content.Intent;
++import android.os.Bundle;
++import android.support.v7.app.AppCompatActivity;
++import android.text.Editable;
++import android.text.TextWatcher;
++import android.view.KeyEvent;
++import android.view.View;
++import android.view.ViewGroup;
++import android.widget.AdapterView;
++import android.widget.BaseAdapter;
++import android.widget.EditText;
++import android.widget.ListView;
++import android.widget.TextView;
++
++import com.amap.api.maps2d.model.LatLng;
++import com.amap.api.services.core.AMapException;
++import com.amap.api.services.core.LatLonPoint;
++import com.amap.api.services.core.PoiItem;
++import com.amap.api.services.poisearch.PoiResult;
++import com.amap.api.services.poisearch.PoiSearch;
++
++import java.util.ArrayList;
++import java.util.List;
++
++public class SearchAddrActivity extends AppCompatActivity implements TextWatcher,
++        PoiSearch.OnPoiSearchListener, AdapterView.OnItemClickListener {
++
++    public static final String CITY = "city";
++    public static final String LATLNG = "latlng";
++    public static final String RESULT = "result";
++
++    private EditText search;
++    private ListView listView;
++    private PoiSearch poiSearch;
++    private int currentPage = 1;
++    private PoiSearch.Query query;
++    private String city;
++    private LatLonPoint lp;
++    private List<PoiItem> pois;
++    private PoiAdapter adapter;
++    private String keyWord;
++    private int count;
++
++    @Override
++    protected void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++        setContentView(R.layout.activity_search_addr);
++        search = (EditText) findViewById(R.id.search_keyword);
++        listView = (ListView) findViewById(R.id.search_listview);
++        search.addTextChangedListener(this);
++        city = getIntent().getStringExtra(CITY);
++        LatLng latLng = getIntent().getParcelableExtra(LATLNG);
++        if (latLng != null) lp = new LatLonPoint(latLng.latitude, latLng.longitude);
++        pois = new ArrayList<>();
++        adapter = new PoiAdapter();
++        listView.setAdapter(adapter);
++    }
++
++
++    public void onClick(View v) {
++        if (v.getId() == R.id.search_back) {
++        }
++    }
++
++    @Override
++    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
++
++    }
++
++    @Override
++    public void onTextChanged(CharSequence s, int start, int before, int count) {
++
++    }
++
++    @Override
++    public void afterTextChanged(Editable s) {
++        currentPage = 1;
++        keyWord = s.toString().trim();
++        pois.clear();
++        doSearchQuery();
++    }
++    /**
++     * 开始进行poi搜索
++     */
++    /**
++     * 开始进行poi搜索
++     */
++    protected void doSearchQuery() {
++        // 第一个参数表示搜索字符串，第二个参数表示poi搜索类型，第三个参数表示poi搜索区域（空字符串代表全国）
++        query = new PoiSearch.Query(keyWord, "地名地址信息", "");
++        query.setPageSize(20);// 设置每页最多返回多少条poiitem
++        query.setPageNum(currentPage);// 设置查第一页
++        if (lp != null) {
++            poiSearch = new PoiSearch(this, query);
++            poiSearch.setOnPoiSearchListener(this);
++            poiSearch.setBound(new PoiSearch.SearchBound(lp, 5000, true));//
++            // 设置搜索区域为以lp点为圆心，其周围5000米范围
++            poiSearch.searchPOIAsyn();// 异步搜索
++        }
++    }
++
++    @Override
++    public void onPoiSearched(PoiResult poiResult, int rcode) {
++        if (rcode != AMapException.CODE_AMAP_SUCCESS) return;
++        pois.addAll(poiResult.getPois());
++        /*
++        PoiItem item = pois.get(0);
++        if (item != null) {
++            Class<? extends PoiItem> clz = item.getClass();
++            Method[] methods = clz.getMethods();
++            for (Method m : methods) {
++                m.setAccessible(true);
++                try {
++                    String methodName = m.getName();
++                    if (methodName.startsWith("get"))
++                        System.out.println(m.getName() + "==>" + m.invoke(item));
++                } catch (IllegalAccessException e) {
++                    e.printStackTrace();
++                } catch (InvocationTargetException e) {
++                    e.printStackTrace();
++                }
++            }
++        }
++        */
++        adapter.notifyDataSetChanged();
++    }
++
++    @Override
++    public void onPoiItemSearched(PoiItem poiItem, int i) {
++
++    }
++
++    @Override
++    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
++        PoiItem item = pois.get((int) id);
++        Intent intent = new Intent();
++        intent.putExtra(RESULT, item);
++        setResult(Activity.RESULT_OK, intent);
++        finish();
++    }
++
++    class PoiAdapter extends BaseAdapter {
++
++        @Override
++        public int getCount() {
++            return pois.size();
++        }
++
++        @Override
++        public Object getItem(int position) {
++            return pois.get(position);
++        }
++
++        @Override
++        public long getItemId(int position) {
++            return position;
++        }
++
++        @Override
++        public View getView(int position, View convertView, ViewGroup parent) {
++            ViewHolder vh;
++            PoiItem item = pois.get(position);
++            if (convertView == null) {
++                convertView = getLayoutInflater().inflate(R.layout.item_search_poi, null, false);
++                vh = new ViewHolder(convertView);
++                convertView.setTag(convertView);
++            } else vh = (ViewHolder) convertView.getTag();
++            vh.addr.setText(item.getTitle());
++            if (item.getCityName() != null)
++                vh.city.setText(item.getAdName());
++            if (pois.size() % 20 == 0 && position >= pois.size() - 5) {
++                ++currentPage;
++                doSearchQuery();
++            }
++            convertView.setTag(vh);
++            System.out.println(item.getAdName());
++            return convertView;
++        }
++    }
++
++    class ViewHolder {
++        TextView addr, city;
++
++        public ViewHolder(View v) {
++            addr = (TextView) v.findViewById(R.id.addr);
++            city = (TextView) v.findViewById(R.id.city);
++        }
++    }
++
++    @Override
++    public boolean onKeyDown(int keyCode, KeyEvent event) {
++        if (keyCode == KeyEvent.KEYCODE_SEARCH) {
++            currentPage = 1;
++            keyWord = search.getText().toString().trim();
++            pois.clear();
++            doSearchQuery();
++            return true;
++        }
++        return super.onKeyDown(keyCode, event);
++    }
++}
+Index: util/src/main/java/com/slowlife/lib/MD5.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- util/src/main/java/com/slowlife/lib/MD5.java	(date 1493888251000)
++++ util/src/main/java/com/slowlife/lib/MD5.java	(revision )
+@@ -8,7 +8,7 @@
+  */
+ 
+ public class MD5 {
+-    public static String md5(String str){
++    public static String md5(String str) {
+ 
+         MessageDigest md = null;
+         try {
+@@ -33,4 +33,15 @@
+         }
+         return null;
+     }
++
++    /**
++     * 加密密码
++     *
++     * @param pwd
++     * @return
++     */
++    public static String md5Pwd(String pwd) {
++        String md532 = md5(pwd);
++        return md5(md532 + md532);
++    }
+ }
+Index: app/src/androidTest/java/com/android/slowlife/http/TestOkHttp.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/androidTest/java/com/android/slowlife/http/TestOkHttp.java	(date 1493888251000)
++++ app/src/androidTest/java/com/android/slowlife/http/TestOkHttp.java	(revision )
+@@ -8,8 +8,11 @@
+ 
+ import okhttp3.Call;
+ import okhttp3.Callback;
++import okhttp3.MediaType;
++import okhttp3.MultipartBody;
+ import okhttp3.OkHttpClient;
+ import okhttp3.Request;
++import okhttp3.RequestBody;
+ import okhttp3.Response;
+ 
+ /**
+@@ -42,5 +45,21 @@
+                 System.out.println(Thread.currentThread().getName());
+             }
+         });
++    }
++
++
++    /**
++     * 上传文件
++     */
++    public void upLoadFile() {
++        OkHttpClient okHttpClient = new OkHttpClient();
++        Request.Builder builder = new Request.Builder().url("http://192.168.1.109:8080/slowlife/appuser/uploaduserimgs");
++        RequestBody fileRequest = RequestBody.create(MediaType.parse("application/octet-stream"), "");
++        RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
++                .addFormDataPart("userId", "402881ed5bcdaa4f015bcdabe3c10001")
++                .addFormDataPart("type", "0")
++                .addFormDataPart("pictures", "head.png", fileRequest).build();
++
++        builder.method("POST", requestBody);
+     }
+ }
+Index: app/src/main/java/com/android/slowlife/fragment/OrderFragment.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/android/slowlife/fragment/OrderFragment.java	(date 1493888251000)
++++ app/src/main/java/com/android/slowlife/fragment/OrderFragment.java	(revision )
+@@ -1,22 +1,29 @@
+ package com.android.slowlife.fragment;
+ 
++import android.content.Intent;
+ import android.os.Build;
+ import android.os.Bundle;
+ import android.support.annotation.Nullable;
+ import android.support.v4.view.ViewPager;
+-import android.util.Log;
+ import android.view.LayoutInflater;
+ import android.view.View;
+ import android.view.ViewGroup;
++import android.widget.AdapterView;
+ import android.widget.LinearLayout;
++import android.widget.ListView;
+ 
+ import com.android.slowlife.BaseFragment;
+ import com.android.slowlife.R;
+-import com.android.slowlife.adapter.OrderNavBarAdapter;
++import com.android.slowlife.activity.CancelOrdersActivity;
++import com.android.slowlife.activity.DeliveryOrdersActivity;
++import com.android.slowlife.activity.FinishOrderActivity;
++import com.android.slowlife.activity.NoSingleActivity;
++import com.android.slowlife.adapter.OrdersAdapter;
++import com.android.slowlife.objectmodel.OrdersEntity;
+ import com.android.slowlife.util.Common;
+-import com.android.slowlife.view.PagerSlidingTabStrip;
+ 
+ import java.util.ArrayList;
++import java.util.List;
+ 
+ import butterknife.Bind;
+ import butterknife.ButterKnife;
+@@ -24,11 +31,13 @@
+ /**
+  * Created by Administrator on 2017/1/19 .
+  */
+-public class OrderFragment extends BaseFragment {
+-    @Bind(R.id.tabs)
+-    PagerSlidingTabStrip tabs;
++public class OrderFragment extends BaseFragment implements AdapterView.OnItemClickListener {
+     @Bind(R.id.pager)
+     ViewPager pager;
++    @Bind(R.id.orderList)
++    ListView listView;
++    private OrdersAdapter ordersAdapter;
++    private List<OrdersEntity> list;
+ 
+     //    public DropDownMenu mDropDownMenu;
+ //    private String headers[] = {"全部", "快递订单", "商品订单"};
+@@ -78,140 +87,68 @@
+      * 根据选择的不同界面选择不同tabs
+      */
+     private void initPagers() {
+-        ArrayList<String> list = new ArrayList<>();
+-        list.add("全部");
+-        list.add("商品订单");
+-        list.add("快递订单");
+-
+-        pager.setAdapter(new OrderNavBarAdapter(getChildFragmentManager(), list));
+-        tabs.setViewPager(pager);
+-        pager.setCurrentItem(0);
+-        tabs.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+-            @Override
+-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+-
++        ordersAdapter=new OrdersAdapter(getActivity(),getOrders());
++        list=getOrders();
++        listView.setAdapter(ordersAdapter);
++        listView.setOnItemClickListener(this);
++//        pager.setAdapter(new OrderNavBarAdapter(getChildFragmentManager(), list));
++//        pager.setCurrentItem(0);
+-            }
++    }
+ 
+-            @Override
+-            public void onPageSelected(int position) {
+-                Log.d("", "onPageSelected:" + position);
++    public static OrderFragment newInstance(String content) {
++        Bundle args = new Bundle();
++        args.putString("ARGS", content);
++        OrderFragment fragment = new OrderFragment();
++        fragment.setArguments(args);
++        return fragment;
+-            }
++    }
+ 
+-            @Override
+-            public void onPageScrollStateChanged(int state) {
+-
++    /**
++     * listview测试数据
++     */
++    private List<OrdersEntity> getOrders() {
++        List<OrdersEntity> list = new ArrayList<OrdersEntity>();
++        OrdersEntity orders = null;
++        for (int i = 0; i < 10; i++) {
++            orders = new OrdersEntity();
++            orders.setName("每时每刻便利店" + i);
++            orders.setPrice(119.0 + i);
++            orders.setOrdersTag("0");
++            orders.setShopNumber(i + 1);
++            if (i == 2 || i == 6) {
++                orders.setOrdersTag("1");
+             }
+-        });
+-        tabs.setOnPagerTitleItemClickListener(new PagerSlidingTabStrip.OnPagerTitleItemClickListener() {
+-            @Override
+-            public void onSingleClickItem(int position) {
+-
++            if (i == 3 || i == 4) {
++                orders.setOrdersTag("3");
+             }
++            if (i == 8 || i == 9) {
++                orders.setOrdersTag("2");
++            }
++            list.add(orders);
++        }
++        return list;
++    }
+ 
+-            @Override
++    @Override
+-            public void onDoubleClickItem(int position) {
+-
++    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
++        Intent intent = null;
++        if (list.size() > 0 && !Common.isNull(list)) {
++            if ("0".equals(list.get(position).getOrdersTag())) {
++                intent = new Intent(getActivity(), CancelOrdersActivity.class);
++                startActivity(intent);
+             }
+-        });
++            if ("2".equals(list.get(position).getOrdersTag())) {
++                intent = new Intent(getActivity(), FinishOrderActivity.class);
++                startActivity(intent);
+-    }
++            }
+-
+-    public static OrderFragment newInstance(String content) {
+-        Bundle args = new Bundle();
+-        args.putString("ARGS", content);
+-        OrderFragment fragment = new OrderFragment();
+-        fragment.setArguments(args);
+-        return fragment;
++            if ("1".equals(list.get(position).getOrdersTag())) {
++                intent = new Intent(getActivity(), DeliveryOrdersActivity.class);
++                startActivity(intent);
+-    }
++            }
+-//
+-//    /**
+-//     * 初始化控件
+-//     * */
+-//    private void initViews(){
+-//        popupViews.clear();
+-//        Activity activity=getActivity();
+-//        final ListView orderView = new ListView(activity);
+-//        adapter = new OrderStateAdapter(activity, Arrays.asList(texts),Arrays.asList(images));
+-//        orderView.setDividerHeight(0);
+-//        orderView.setAdapter(adapter);
+-//        orderView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+-//            @Override
+-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+-//                adapter.setCheckItem(position);
+-//                mDropDownMenu.closeMenu();
+-//            }
+-//        });
+-//        final ListView orderView1 = new ListView(activity);
+-//        orderView1.setDividerHeight(0);
+-//        orderView1.setAdapter(adapter);
+-//        orderView1.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+-//            @Override
+-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+-//                adapter.setCheckItem(position);
+-//                mDropDownMenu.closeMenu();
+-//            }
+-//        });
+-//        final ListView orderView2 = new ListView(activity);
+-//        orderView2.setDividerHeight(0);
+-//        orderView2.setAdapter(adapter);
+-//        orderView2.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+-//            @Override
+-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+-//                adapter.setCheckItem(position);
+-//                mDropDownMenu.closeMenu();
+-//            }
+-//        });
+-//        popupViews.add(orderView);
+-//        popupViews.add(orderView1);
+-//        popupViews.add(orderView2);
+-//        ListView contentView = new ListView(activity);
+-//        mDropDownMenu.setDropDownMenu(Arrays.asList(headers), popupViews, contentView);
+-//    }
+-//    /**
+-//     * listview测试数据
+-//     * */
+-//    private List<OrdersEntity> getOrders(){
+-//        List<OrdersEntity> list=new ArrayList<OrdersEntity>();
+-//        OrdersEntity orders=null;
+-//        for(int i=0;i<10;i++){
+-//            orders=new OrdersEntity();
+-//            orders.setName("每时每刻便利店"+i);
+-//            orders.setPrice(119.0+i);
+-//            orders.setOrdersTag("0");
+-//            orders.setShopNumber(i+1);
+-//            if(i==2||i==6){
+-//                orders.setOrdersTag("1");
+-//            }
+-//            if(i==3||i==4){
+-//                orders.setOrdersTag("3");
+-//            }
+-//            if(i==8||i==9){
+-//                orders.setOrdersTag("2");
+-//            }
+-//            list.add(orders);
+-//        }
+-//        return list;
+-//    }
+-//
+-//    @Override
+-//    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+-//        Intent intent=null;
+-//        if(list.size()>0&& !Common.isNull(list)){
+-//            if("0".equals(list.get(position).getOrdersTag())){
+-//                intent=new Intent(getActivity(), CancelOrdersActivity.class);
+-//                startActivity(intent);
+-//            }
+-//            if("2".equals(list.get(position).getOrdersTag())){
+-//                intent=new Intent(getActivity(), FinishOrderActivity.class);
+-//                startActivity(intent);
+-//            }
+-//            if("1".equals(list.get(position).getOrdersTag())){
+-//                intent=new Intent(getActivity(), DeliveryOrdersActivity.class);
+-//                startActivity(intent);
+-//            }
+-//            if("3".equals(list.get(position).getOrdersTag())){
+-//                intent=new Intent(getActivity(), NoSingleActivity.class);
+-//                startActivity(intent);
+-//            }
+-//        }
+-//    }
++            if ("3".equals(list.get(position).getOrdersTag())) {
++                intent = new Intent(getActivity(), NoSingleActivity.class);
++                startActivity(intent);
++            }
++        }
++    }
+ }
+Index: app/src/main/res/layout/fragment_order.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/fragment_order.xml	(date 1493888251000)
++++ app/src/main/res/layout/fragment_order.xml	(revision )
+@@ -1,78 +1,61 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+-    xmlns:app="http://schemas.android.com/apk/res-auto"
++    android:id="@+id/ll"
+     android:layout_width="match_parent"
+     android:layout_height="match_parent"
+     android:background="@color/white"
+-    android:orientation="vertical"
+     android:fitsSystemWindows="true"
+-    android:id="@+id/ll">
++    android:orientation="vertical">
++
+     <RelativeLayout
+         android:id="@+id/top_layout"
+         android:layout_width="match_parent"
+         android:layout_height="45dp"
+         android:background="@color/red"
+         android:gravity="center">
++
+         <TextView
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:text="订单"
+             android:textColor="@color/white"
+-            android:textSize="16sp"/>
++            android:textSize="16sp" />
+     </RelativeLayout>
+     <!--<com.android.slowlife.view.DropDownMenu-->
+-        <!--android:id="@+id/dropDownMenu"-->
+-        <!--android:layout_width="match_parent"-->
+-        <!--android:layout_height="wrap_content"-->
+-        <!--app:dddividerColor="@android:color/transparent"-->
+-        <!--app:ddmaskColor="@android:color/transparent"-->
+-        <!--app:ddmenuBackgroundColor="@color/white"-->
+-        <!--app:ddmenuSelectedIcon="@drawable/test76"-->
+-        <!--app:ddmenuTextSize="13sp"-->
+-        <!--app:ddmenuUnselectedIcon="@drawable/test77"-->
+-        <!--app:ddtextSelectedColor="@color/red"-->
+-        <!--app:ddtextUnselectedColor="@color/text_color"-->
+-        <!--app:ddunderlineColor="@color/line_color"-->
+-        <!--app:paddingStart="0dp"-->
+-        <!--app:paddingEnd="0dp" />-->
++    <!--android:id="@+id/dropDownMenu"-->
++    <!--android:layout_width="match_parent"-->
++    <!--android:layout_height="wrap_content"-->
++    <!--app:dddividerColor="@android:color/transparent"-->
++    <!--app:ddmaskColor="@android:color/transparent"-->
++    <!--app:ddmenuBackgroundColor="@color/white"-->
++    <!--app:ddmenuSelectedIcon="@drawable/test76"-->
++    <!--app:ddmenuTextSize="13sp"-->
++    <!--app:ddmenuUnselectedIcon="@drawable/test77"-->
++    <!--app:ddtextSelectedColor="@color/red"-->
++    <!--app:ddtextUnselectedColor="@color/text_color"-->
++    <!--app:ddunderlineColor="@color/line_color"-->
++    <!--app:paddingStart="0dp"-->
++    <!--app:paddingEnd="0dp" />-->
+     <!--<ListView-->
+-        <!--android:id="@+id/listview"-->
+-        <!--android:layout_width="match_parent"-->
+-        <!--android:layout_height="match_parent"-->
+-        <!--android:cacheColorHint="@android:color/transparent"-->
+-        <!--android:divider="@color/line_color"-->
+-        <!--android:dividerHeight="10dp"-->
+-        <!--android:drawSelectorOnTop="true"-->
+-        <!--android:scrollbars="none">-->
++    <!--android:id="@+id/listview"-->
++    <!--android:layout_width="match_parent"-->
++    <!--android:layout_height="match_parent"-->
++    <!--android:cacheColorHint="@android:color/transparent"-->
++    <!--android:divider="@color/line_color"-->
++    <!--android:dividerHeight="10dp"-->
++    <!--android:drawSelectorOnTop="true"-->
++    <!--android:scrollbars="none">-->
+     <!--</ListView>-->
+     <!-- 订单滑动栏 -->
+-    <LinearLayout
++    <ListView
++        android:id="@+id/orderList"
+         android:layout_width="match_parent"
+-        android:layout_height="match_parent"
+-        android:orientation="vertical">
++        android:layout_height="wrap_content" />
+ 
+-        <com.android.slowlife.view.PagerSlidingTabStrip
+-            android:id="@+id/tabs"
+-            android:layout_width="match_parent"
+-            android:layout_height="40dp"
+-            android:layout_gravity="center"
+-            android:textColor="@color/black"
+-            android:textSize="12sp"
+-            app:pstsDividerColor="@android:color/transparent"
+-            app:pstsIndicatorColor="@color/red"
+-            app:pstsIndicatorHeight="1dp"
+-            app:pstsIndicatorWrap="true"
+-            app:pstsScaleZoomMax="0"
+-            app:pstsShouldExpand="true"
+-            app:pstsTextSelectedColor="@color/red"
+-            app:pstsUnderlineColor="@color/colorAccent"
+-            app:pstsUnderlineHeight="0dp"
+-            android:background="@color/white"/>
+-
+-        <android.support.v4.view.ViewPager
+-            android:id="@+id/pager"
+-            android:layout_width="match_parent"
+-            android:layout_height="wrap_content"
++    <android.support.v4.view.ViewPager
++        android:id="@+id/pager"
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
+-            android:layout_below="@+id/tabs" />
+-    </LinearLayout>
++        android:layout_below="@+id/tabs"
++        android:visibility="gone" />
+ </LinearLayout>
+\ No newline at end of file
+Index: map/build.gradle
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- map/build.gradle	(date 1493888251000)
++++ map/build.gradle	(revision )
+@@ -27,17 +27,22 @@
+     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+         exclude group: 'com.android.support', module: 'support-annotations'
+     })
+-    testCompile 'junit:junit:4.12'
+     /*   3D地图
+-            compile 'com.amap.api:3dmap:latest.integration'
+-            */
++                    compile 'com.amap.api:3dmap:latest.integration'
++                    */
+     /*   2D地图   */
+-    compile 'com.amap.api:map2d:latest.integration'
+     /*   导航
+-            compile 'com.amap.api:navi-3dmap:latest.integration'
+-            */
++                    compile 'com.amap.api:navi-3dmap:latest.integration'
++                    */
+     /*   搜索     */
+-    compile 'com.amap.api:search:latest.integration'
+     /*   定位     */
++    compile 'com.amap.api:map2d:latest.integration'
++    compile 'com.amap.api:search:latest.integration'
+     compile 'com.amap.api:location:latest.integration'
++    compile 'com.android.support:appcompat-v7:25.3.1'
++    compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha8'
++    compile 'com.android.support:cardview-v7:25.3.1'
++    compile 'com.android.support:design:25.3.1'
++    testCompile 'junit:junit:4.12'
++    compile project(':util')
+ }
+Index: app/src/main/java/com/android/slowlife/MapActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/android/slowlife/MapActivity.java	(date 1493888251000)
++++ app/src/main/java/com/android/slowlife/MapActivity.java	(revision )
+@@ -51,7 +51,9 @@
+      * 初始化地图
+      */
+     private void initMap() {
++
+         if (aMap == null) {
++            if (mapView == null) return;
+             aMap = mapView.getMap();
+             uiSettings = aMap.getUiSettings();
+         }
+@@ -89,7 +91,8 @@
+     @Override
+     protected void onResume() {
+         super.onResume();
++        if (mapView != null)
+-        mapView.onResume();
++            mapView.onResume();
+     }
+ 
+     /**
+@@ -98,7 +101,8 @@
+     @Override
+     protected void onPause() {
+         super.onPause();
++        if (mapView != null)
+-        mapView.onPause();
++            mapView.onPause();
+         deactivate();
+     }
+ 
+@@ -108,7 +112,8 @@
+     @Override
+     protected void onSaveInstanceState(Bundle outState) {
+         super.onSaveInstanceState(outState);
++        if (mapView != null)
+-        mapView.onSaveInstanceState(outState);
++            mapView.onSaveInstanceState(outState);
+     }
+ 
+     /**
+@@ -179,6 +184,7 @@
+             changeCamera(
+                     CameraUpdateFactory.newCameraPosition(new CameraPosition(
+                             new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude()), 18, 30, 30)));
++            if (aMap == null) return;
+             aMap.clear();
+             aMap.addMarker(new MarkerOptions().position(
+                     new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude()))
+@@ -196,8 +202,7 @@
+      * 根据动画按钮状态，调用函数animateCamera或moveCamera来改变可视区域
+      */
+     protected void changeCamera(CameraUpdate update) {
+-
++        if (aMap != null)
+-        aMap.moveCamera(update);
++            aMap.moveCamera(update);
+-
+     }
+ }
+Index: app/src/main/java/com/android/slowlife/activity/SearchActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/android/slowlife/activity/SearchActivity.java	(date 1493888251000)
++++ app/src/main/java/com/android/slowlife/activity/SearchActivity.java	(revision )
+@@ -34,7 +34,7 @@
+         if (!CacheActivity.activityList.contains(this)) {
+             CacheActivity.addActivity(this);
+         }
+-        setContentView(R.layout.activity_search);
++        setContentView(R.layout.activity_search_addr);
+         ButterKnife.bind(this);
+         search1.setFocusable(true);
+     }
+Index: app/src/main/java/com/android/slowlife/activity/NewAddressActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/android/slowlife/activity/NewAddressActivity.java	(date 1493888251000)
++++ app/src/main/java/com/android/slowlife/activity/NewAddressActivity.java	(revision )
+@@ -3,21 +3,25 @@
+ import android.content.Intent;
+ import android.os.Bundle;
+ import android.provider.Contacts;
++import android.text.TextUtils;
+ import android.view.View;
+ import android.widget.Button;
+ import android.widget.EditText;
+ import android.widget.LinearLayout;
+-import android.widget.RadioButton;
+ import android.widget.RadioGroup;
+ import android.widget.RelativeLayout;
+ import android.widget.TextView;
++import android.widget.Toast;
+ 
+ import com.android.slowlife.BaseActivity;
+ import com.android.slowlife.R;
+ import com.android.slowlife.util.CacheActivity;
++import com.slowlife.map.MapActivity;
+ 
+ /**
+  * Created by Administrator on 2017/1/23 0023.
++ * <p>
++ * TODO 添加收货地址页面
+  */
+ 
+ public class NewAddressActivity extends BaseActivity implements View.OnClickListener {
+@@ -25,13 +29,12 @@
+     private RelativeLayout go_back, delete;
+     private EditText name, phone, addressEdit;
+     private TextView address;
+-    private RadioButton sir, madam, home, company, school;
+     private LinearLayout address_layout;
+     private Button ensure;
+     private LinearLayout add_book;
+-    private RadioGroup radioGroup,radioGroup1;
++    private RadioGroup radioGroup, radioGroup1;
+-    private String sex="";//记录选择的是男是女
++    private String sex = "";//记录选择的是男是女
+-    private String addressed="";//记录选择的地址
++    private String addressed = "";//记录选择的地址
+ 
+     @Override
+     protected void onCreate(Bundle savedInstanceState) {
+@@ -52,48 +55,38 @@
+         name = (EditText) findViewById(R.id.name_edit);
+         phone = (EditText) findViewById(R.id.phone_edit);
+         addressEdit = (EditText) findViewById(R.id.address_edit);
+-        address= (TextView) findViewById(R.id.address);
++        address = (TextView) findViewById(R.id.address);
+-        sir = (RadioButton) findViewById(R.id.sir_text);
+-        sir.setChecked(true);
+-        madam = (RadioButton) findViewById(R.id.madam_text);
+-        home = (RadioButton) findViewById(R.id.home_text);
+-        company = (RadioButton) findViewById(R.id.company_text);
+-        company.setChecked(true);
+-        school = (RadioButton) findViewById(R.id.school_text);
+         address_layout = (LinearLayout) findViewById(R.id.address_layout);
+         address_layout.setOnClickListener(this);
+         ensure = (Button) findViewById(R.id.ensure_bt);
+         ensure.setOnClickListener(this);
+         add_book = (LinearLayout) findViewById(R.id.add_phone_book_layout);
+         add_book.setOnClickListener(this);
+-        houseNumberEdit= (EditText) findViewById(R.id.house_number_edit);
++        houseNumberEdit = (EditText) findViewById(R.id.house_number_edit);
+-        radioGroup= (RadioGroup) findViewById(R.id.radioGroup);
++        radioGroup = (RadioGroup) findViewById(R.id.radioGroup);
+         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+             @Override
+             public void onCheckedChanged(RadioGroup group, int checkedId) {
+-                switch (checkedId){
++                switch (checkedId) {
+                     case R.id.sir_text:
+-                        sex=sir.getText().toString().trim();
++                        sex = "男";
+                         break;
+                     case R.id.madam_text:
+-                        sex=madam.getText().toString().trim();
++                        sex = "女";
+                         break;
+                 }
+             }
+         });
+-        radioGroup1= (RadioGroup) findViewById(R.id.radioGroup1);
++        radioGroup1 = (RadioGroup) findViewById(R.id.radioGroup1);
+         radioGroup1.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+             @Override
+             public void onCheckedChanged(RadioGroup group, int checkedId) {
+-                switch (checkedId){
++                switch (checkedId) {
+                     case R.id.home_text:
+-                        addressed=home.getText().toString().trim();
+                         break;
+                     case R.id.company_text:
+-                        addressed=company.getText().toString().trim();
+                         break;
+                     case R.id.school_text:
+-                        addressed=school.getText().toString().trim();
+                         break;
+                 }
+             }
+@@ -107,12 +100,11 @@
+             case R.id.back_rl:
+                 finish();
+                 break;
+-            case R.id.address_layout:
+-                intent=new Intent(this,SelectReceiptAddressActivity.class);
+-                startActivityForResult(intent, 1);
++            case R.id.address_layout:   //  定位
++                startActivityForResult(new Intent(this, MapActivity.class), 1);
+                 break;
+-            case R.id.ensure_bt:
+-                finish();
++            case R.id.ensure_bt:        // 提交
++                submit();
+                 break;
+             case R.id.add_phone_book_layout://通讯录
+                 intent = new Intent();
+@@ -123,10 +115,44 @@
+         }
+     }
+ 
++    /**
++     * 提交收货地址
++     */
++    private void submit() {
++        String uName = name.getText().toString().trim();
++        String uPhone = phone.getText().toString().trim();
++        String uAddrGps = address.getText().toString().trim();
++        String uAddr = addressEdit.getText().toString().trim();
++        String house = houseNumberEdit.getText().toString().trim();
++        if (TextUtils.isEmpty(uName) || uName.matches("/[\\x{4e00}-\\x{9fa5}]{5}/u ")) {
++            Toast.makeText(this, "用户名格式不正确", Toast.LENGTH_SHORT).show();
++            return;
++        }
++        if (TextUtils.isEmpty(uPhone) || uPhone.matches("^1[3|4|5|7|8]\\d{9}$")) {
++            Toast.makeText(this, "手机号格式不正确", Toast.LENGTH_SHORT).show();
++            return;
++        }
++        if (TextUtils.isEmpty(uAddr)) {
++            Toast.makeText(this, "详细地址不能为空", Toast.LENGTH_SHORT).show();
++            return;
++        }
++        if (TextUtils.isEmpty(uAddrGps)) {
++            Toast.makeText(this, "收货地址不能为空", Toast.LENGTH_SHORT).show();
++            return;
++        }
++        if (TextUtils.isEmpty(house)) {
++            Toast.makeText(this, "门牌号不能为空", Toast.LENGTH_SHORT).show();
++            return;
++        }
++
++
++    }
++
+     @Override
+     protected void onDestroy() {
+         super.onDestroy();
+     }
++
+     /**
+      * 接收回传过来的值
+      */
+Index: app/src/main/java/com/android/slowlife/view/RoundDrawable.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/android/slowlife/view/RoundDrawable.java	(revision )
++++ app/src/main/java/com/android/slowlife/view/RoundDrawable.java	(revision )
+@@ -0,0 +1,68 @@
++package com.android.slowlife.view;
++
++import android.graphics.Bitmap;
++import android.graphics.BitmapShader;
++import android.graphics.Canvas;
++import android.graphics.ColorFilter;
++import android.graphics.Paint;
++import android.graphics.PixelFormat;
++import android.graphics.Rect;
++import android.graphics.RectF;
++import android.graphics.Shader;
++import android.graphics.drawable.Drawable;
++import android.support.annotation.IntRange;
++import android.support.annotation.NonNull;
++import android.support.annotation.Nullable;
++
++/**
++ * Created by sgrape on 2017/5/5.
++ * e-mail: sgrape1153@gmail.com
++ */
++
++public class RoundDrawable extends Drawable {
++
++    private Bitmap img;
++    private int roundx, roundy;
++    private Paint paint;
++    private RectF rectF;
++
++    public RoundDrawable(Bitmap img) {
++        this(img, -1, -1);
++    }
++
++    public RoundDrawable(Bitmap img, int roundx, int roundy) {
++        this.img = img;
++        this.roundx = roundx == -1 ? Integer.MAX_VALUE : roundx;
++        this.roundy = roundy == -1 ? Integer.MAX_VALUE : roundy;
++        paint = new Paint();
++        paint.setAntiAlias(true);
++        paint.setShader(new BitmapShader(img, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP));
++        rectF = new RectF(0, 0, img.getWidth(), img.getHeight());
++    }
++
++    @Override
++    public void draw(@NonNull Canvas canvas) {
++        canvas.drawRoundRect(rectF, roundx, roundy, paint);
++    }
++
++    @Override
++    public void setAlpha(@IntRange(from = 0, to = 255) int alpha) {
++        paint.setAlpha(alpha);
++    }
++
++    @Override
++    public void setColorFilter(@Nullable ColorFilter colorFilter) {
++        paint.setColorFilter(colorFilter);
++    }
++
++    @Override
++    public int getOpacity() {
++        return PixelFormat.TRANSLUCENT;
++    }
++
++    @Override
++    protected void onBoundsChange(Rect bounds) {
++        super.onBoundsChange(bounds);
++        rectF = new RectF(bounds);
++    }
++}
+Index: app/src/main/java/com/android/slowlife/activity/ResetPasswordActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/android/slowlife/activity/ResetPasswordActivity.java	(date 1493888251000)
++++ app/src/main/java/com/android/slowlife/activity/ResetPasswordActivity.java	(revision )
+@@ -160,7 +160,7 @@
+             smsJson.put("phone", phone);
+             JSONObject userJson = new JSONObject();
+             userJson.put("phone", phone);
+-            userJson.put("password", MD5.md5(pwd));
++            userJson.put("password", MD5.md5Pwd(pwd));
+             RequestBody requestBody = new MultipartBody.Builder()
+                     .setType(MultipartBody.FORM)
+                     .addFormDataPart("smsStr", smsJson.toString())
+Index: app/src/main/java/com/android/slowlife/XgReceiver.java
+===================================================================
+--- app/src/main/java/com/android/slowlife/XgReceiver.java	(date 1493888251000)
++++ app/src/main/java/com/android/slowlife/XgReceiver.java	(date 1493888251000)
+@@ -1,51 +0,0 @@
+-package com.android.slowlife;
+-
+-import android.content.Context;
+-
+-import com.tencent.android.tpush.XGPushBaseReceiver;
+-import com.tencent.android.tpush.XGPushClickedResult;
+-import com.tencent.android.tpush.XGPushRegisterResult;
+-import com.tencent.android.tpush.XGPushShowedResult;
+-import com.tencent.android.tpush.XGPushTextMessage;
+-
+-/**
+- * Created by sgrape on 2017/4/29.
+- */
+-
+-public class XgReceiver extends XGPushBaseReceiver {
+-
+-    @Override
+-    public void onRegisterResult(Context context, int i, XGPushRegisterResult xgPushRegisterResult) {
+-        System.out.println(xgPushRegisterResult);
+-    }
+-
+-    @Override
+-    public void onUnregisterResult(Context context, int i) {
+-
+-    }
+-
+-    @Override
+-    public void onSetTagResult(Context context, int i, String s) {
+-        System.out.println(s);
+-    }
+-
+-    @Override
+-    public void onDeleteTagResult(Context context, int i, String s) {
+-        System.out.println(s);
+-    }
+-
+-    @Override
+-    public void onTextMessage(Context context, XGPushTextMessage xgPushTextMessage) {
+-        System.out.println(xgPushTextMessage);
+-    }
+-
+-    @Override
+-    public void onNotifactionClickedResult(Context context, XGPushClickedResult xgPushClickedResult) {
+-        System.out.println(xgPushClickedResult);
+-    }
+-
+-    @Override
+-    public void onNotifactionShowedResult(Context context, XGPushShowedResult xgPushShowedResult) {
+-        System.out.println(xgPushShowedResult);
+-    }
+-}
+Index: app/src/main/java/com/android/slowlife/activity/AccountInformationActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/android/slowlife/activity/AccountInformationActivity.java	(date 1493888251000)
++++ app/src/main/java/com/android/slowlife/activity/AccountInformationActivity.java	(revision )
+@@ -1,21 +1,18 @@
+ package com.android.slowlife.activity;
+ 
+ import android.app.Activity;
+-import android.content.ContentResolver;
+ import android.content.Intent;
+-import android.database.Cursor;
+ import android.graphics.Bitmap;
+-import android.graphics.BitmapFactory;
+ import android.graphics.Canvas;
+ import android.graphics.Paint;
+ import android.graphics.PorterDuff;
+ import android.graphics.PorterDuffXfermode;
+ import android.graphics.RectF;
+ import android.graphics.drawable.BitmapDrawable;
+-import android.net.Uri;
+ import android.os.Bundle;
+ import android.os.Environment;
+ import android.provider.MediaStore;
++import android.support.v4.graphics.BitmapCompat;
+ import android.view.Gravity;
+ import android.view.View;
+ import android.view.ViewGroup;
+@@ -32,8 +29,14 @@
+ import com.android.slowlife.app.MyApplication;
+ import com.android.slowlife.bean.Info;
+ import com.android.slowlife.util.CacheActivity;
++import com.android.slowlife.view.RoundDrawable;
++import com.interfaceconfig.Config;
+ 
++import org.json.JSONException;
++import org.json.JSONObject;
++
+ import java.io.BufferedOutputStream;
++import java.io.ByteArrayOutputStream;
+ import java.io.File;
+ import java.io.FileNotFoundException;
+ import java.io.FileOutputStream;
+@@ -41,6 +44,14 @@
+ import java.text.SimpleDateFormat;
+ import java.util.Date;
+ 
++import okhttp3.Call;
++import okhttp3.MediaType;
++import okhttp3.MultipartBody;
++import okhttp3.OkHttpClient;
++import okhttp3.Request;
++import okhttp3.RequestBody;
++import okhttp3.Response;
++
+ /**
+  * Created by Administrator on 2017/1/25 0025.
+  * <p>
+@@ -170,10 +181,7 @@
+         });
+         bt2.setOnClickListener(new View.OnClickListener() {
+             public void onClick(View v) {//从相册中选择
+-                Intent local = new Intent();
+-                local.setType("image/*");
+-                local.setAction(Intent.ACTION_GET_CONTENT);
+-                startActivityForResult(local, 2);
++                startActivityForResult(new Intent(AccountInformationActivity.this, ImageDisposeActivity.class), 2);
+                 pop.dismiss();
+                 popwindows.clearAnimation();
+             }
+@@ -212,7 +220,7 @@
+                             }
+                             BufferedOutputStream bos;
+                             bos = new BufferedOutputStream(new FileOutputStream(myCaptureFile));
+-                            b.compress(Bitmap.CompressFormat.JPEG, 80, bos);
++                            b.compress(Bitmap.CompressFormat.PNG, 80, bos);
+                             bos.flush();
+                             bos.close();
+                         } else {
+@@ -227,32 +235,12 @@
+                         e.printStackTrace();
+                     }
+                     break;
+-                case 2:
+-                    Uri uri = data.getData();
+-                    String[] filePathColumn = {MediaStore.Images.Media.DATA};
+-                    ContentResolver cr = this.getContentResolver();
+-                    try {
+-                        if (bmp != null)// 如果不释放的话，不断取图片，将会内存不够
+-                            bmp.recycle();
+-                        bmp = BitmapFactory.decodeStream(cr.openInputStream(uri));
+-                        bitmap = Bitmap.createScaledBitmap(bmp, 160, 160, true);
+-                        bitmap1 = toRoundBitmap(bitmap);
+-
+-                    } catch (FileNotFoundException e) {
+-                        e.printStackTrace();
+-                    }
+-                    head.setImageBitmap(bitmap1);
+-                    Cursor c = cr.query(uri, filePathColumn, null, null, null);
+-                    c.moveToFirst();
+-                    int colunm_index = c.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+-                    //这是获取的图片保存在sdcard中的位置
+-                    srcPath = c.getString(colunm_index);
+-                    file = new File(srcPath);
+-//                    updateShoperHeader(MyApplication.Keeper_ID, file);
+-                    c.close();
++                case 2:             // 上传头像
++                    uploadImg(data);
+                     break;
+                 case 102:
+-
++                    info = ((MyApplication) getApplication()).getInfo();
++                    phone.setText(info.getPhone());
+                     break;
+                 default:
+                     break;
+@@ -260,6 +248,30 @@
+         }
+     }
+ 
++    // 上传头像
++    private void uploadImg(Intent data) {
++        Bitmap bitmap = data.getParcelableExtra(ImageDisposeActivity.RESULT_IMG);
++        ByteArrayOutputStream baos = new ByteArrayOutputStream();
++        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
++        Request.Builder builder = new Request.Builder().url(Config.Url.getUrl(Config.UPLOADFILE)).tag(Config.UPLOADFILE);
++        RequestBody fileRequest = RequestBody.create(MediaType.parse("application/octet-stream"), baos.toByteArray());
++        RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
++                .addFormDataPart("userId", info.getId())
++                .addFormDataPart("type", "0")
++                .addFormDataPart("pictures", info.getId() + ".png", fileRequest).build();
++
++        builder.method("POST", requestBody);
++//        new OkHttpClient().newCall(builder.build()).enqueue(this);
++//        head.setImageBitmap(toRoundBitmap(bitmap));
++//        head.setBackground(new RoundDrawable(bitmap));
++        try {
++            bitmap.compress(Bitmap.CompressFormat.PNG,100,new FileOutputStream(new File("/sdcard/Android/tem.png")));
++        } catch (FileNotFoundException e) {
++            e.printStackTrace();
++        }
++    }
++
++
+     /**
+      * 把bitmap转成圆形
+      */
+@@ -292,5 +304,13 @@
+     }
+ 
+ 
++    @Override
++    protected void onSuccess(Call call, Response response, JSONObject json) throws JSONException {
++        switch (response.request().tag().toString()) {
++            case Config.UPLOADFILE:
++                Toast.makeText(this, "上传成功", Toast.LENGTH_SHORT).show();
++                break;
++        }
++    }
+ 
+ }
+Index: app/src/main/java/com/android/slowlife/bean/Info.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/android/slowlife/bean/Info.java	(date 1493888251000)
++++ app/src/main/java/com/android/slowlife/bean/Info.java	(revision )
+@@ -1,5 +1,7 @@
+ package com.android.slowlife.bean;
+ 
++import android.graphics.Bitmap;
++
+ /**
+  * Created by sgrape on 2017/5/2.
+  */
+@@ -67,6 +69,15 @@
+     private String onlineStatus_value;
+     private String id2;
+     private String idnumber;
++    private Bitmap head;
++
++    public Bitmap getHead() {
++        return head;
++    }
++
++    public void setHead(Bitmap head) {
++        this.head = head;
++    }
+ 
+     public String getId() {
+         return id;
+Index: .idea/inspectionProfiles/Project_Default.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .idea/inspectionProfiles/Project_Default.xml	(date 1493888251000)
++++ .idea/inspectionProfiles/Project_Default.xml	(revision )
+@@ -2,9 +2,11 @@
+   <profile version="1.0">
+     <option name="myName" value="Project Default" />
+     <inspection_tool class="AndroidLintLongLogTag" enabled="false" level="ERROR" enabled_by_default="false" />
++    <inspection_tool class="AndroidLintMissingConstraints" enabled="false" level="ERROR" enabled_by_default="false" />
+     <inspection_tool class="LoggerInitializedWithForeignClass" enabled="false" level="WARNING" enabled_by_default="false">
+       <option name="loggerClassName" value="org.apache.log4j.Logger,org.slf4j.LoggerFactory,org.apache.commons.logging.LogFactory,java.util.logging.Logger" />
+       <option name="loggerFactoryMethodName" value="getLogger,getLogger,getLog,getLogger" />
+     </inspection_tool>
++    <inspection_tool class="ResourceType" enabled="false" level="ERROR" enabled_by_default="false" />
+   </profile>
+ </component>
+\ No newline at end of file
+Index: app/src/main/java/com/android/slowlife/view/SystemBarTintManager.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/android/slowlife/view/SystemBarTintManager.java	(date 1493888251000)
++++ app/src/main/java/com/android/slowlife/view/SystemBarTintManager.java	(revision )
+@@ -1,4 +1,5 @@
+ package com.android.slowlife.view;
++
+ import android.annotation.SuppressLint;
+ import android.annotation.TargetApi;
+ import android.app.Activity;
+@@ -23,7 +24,6 @@
+ /**
+  * Class to manage status and navigation bar tint effects when using KitKat
+  * translucent system UI modes.
+- *
+  */
+ public class SystemBarTintManager {
+ 
+@@ -50,8 +50,6 @@
+     public static final int DEFAULT_TINT_COLOR = 0x99000000;
+ 
+ 
+-
+-
+     private static String sNavBarOverride;
+ 
+     private final SystemBarConfig mConfig;
+@@ -69,6 +67,7 @@
+      *
+      * @param activity The host activity.
+      */
++    @SuppressWarnings("ResourceType")
+     @TargetApi(19)
+     public SystemBarTintManager(Activity activity) {
+ 
+@@ -83,6 +82,7 @@
+             try {
+                 mStatusBarAvailable = a.getBoolean(0, false);
+                 mNavBarAvailable = a.getBoolean(1, false);
++            } catch (Exception e) {
+             } finally {
+                 a.recycle();
+             }
+@@ -116,7 +116,7 @@
+ 
+     /**
+      * Enable tinting of the system status bar.
+-     *
++     * <p>
+      * If the platform is running Jelly Bean or earlier, or translucent system
+      * UI modes have not been enabled in either the theme or via window flags,
+      * then this method does nothing.
+@@ -132,7 +132,7 @@
+ 
+     /**
+      * Enable tinting of the system navigation bar.
+-     *
++     * <p>
+      * If the platform does not have soft navigation keys, is running Jelly Bean
+      * or earlier, or translucent system UI modes have not been enabled in either
+      * the theme or via window flags, then this method does nothing.
+@@ -337,7 +337,6 @@
+     /**
+      * Class which describes system bar sizing and other characteristics for the current
+      * device configuration.
+-     *
+      */
+     public static class SystemBarConfig {
+ 
+Index: app/src/main/res/layout/fragment_password_login.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/fragment_password_login.xml	(date 1493888251000)
++++ app/src/main/res/layout/fragment_password_login.xml	(revision )
+@@ -18,6 +18,7 @@
+         android:lines="1"
+         android:maxLength="11"
+         android:maxLines="1"
++        android:text="15333333333"
+         android:nextFocusDown="@+id/password_edit"
+         android:textColor="@color/black"
+         android:textColorHint="#919191"
+@@ -40,6 +41,8 @@
+             android:hint="密码"
+             android:inputType="textPassword"
+             android:lines="1"
++            android:text="123"
++            android:longClickable="false"
+             android:maxLength="6"
+             android:textColor="@color/black"
+             android:textColorHint="#919191"
+Index: app/src/main/AndroidManifest.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/AndroidManifest.xml	(date 1493888251000)
++++ app/src/main/AndroidManifest.xml	(revision )
+@@ -21,17 +21,16 @@
+         <activity
+             android:name=".activity.LauncherActivity"
+             android:label="@string/app_name"
+-            android:theme="@style/AppTheme.NoActionBar">
++            android:theme="@style/AppTheme.NoActionBar"></activity>
++        <activity
++            android:name=".MainActivity"
++            android:theme="@style/AppTheme.NoActionBar"
++            android:windowSoftInputMode="adjustPan">
+             <intent-filter>
+                 <action android:name="android.intent.action.MAIN" />
+-
+                 <category android:name="android.intent.category.LAUNCHER" />
+             </intent-filter>
+         </activity>
+-        <activity
+-            android:name=".MainActivity"
+-            android:theme="@style/AppTheme.NoActionBar"
+-            android:windowSoftInputMode="adjustPan" />
+         <activity android:name=".BaseActivity" />
+         <activity android:name=".BaseActivity1" />
+         <activity
+@@ -146,6 +145,7 @@
+             android:windowSoftInputMode="adjustPan" />
+         <activity
+             android:name=".activity.AccountInformationActivity"
++            android:exported="true"
+             android:theme="@style/AppTheme.NoActionBar"
+             android:windowSoftInputMode="adjustPan" />
+         <activity
+@@ -296,16 +296,12 @@
+             android:name=".TestActivity"
+             android:exported="true" />
+ 
+-        <receiver
+-            android:name=".XgReceiver"
+-            android:exported="true">
+-            <intent-filter>
+-                <action android:name="com.tencent.android.tpush.action.PUSH_MESSAGE" />
+-                <action android:name="com.tencent.android.tpush.action.FEEDBACK" />
+-            </intent-filter>
+-        </receiver>
++        <activity android:name=".activity.RegisterActivity" />
++        <activity android:name=".activity.ImageDisposeActivity"></activity>
+ 
+-        <activity android:name=".activity.RegisterActivity"></activity>
++        <activity
++            android:name="com.slowlife.xgpush.PushTestActivity"
++            android:label="推送测试页面"></activity>
+     </application>
+ 
+ </manifest>
+\ No newline at end of file
+Index: app/src/main/java/com/android/slowlife/activity/ReceiptAddressActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/android/slowlife/activity/ReceiptAddressActivity.java	(date 1493888251000)
++++ app/src/main/java/com/android/slowlife/activity/ReceiptAddressActivity.java	(revision )
+@@ -79,6 +79,8 @@
+             case R.id.back_rl:
+                 finish();
+                 break;
++
++            //  添加收货地址
+             case R.id.add_address_text:
+                 intent = new Intent(this, NewAddressActivity.class);
+                 startActivity(intent);
+Index: util/build.gradle
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- util/build.gradle	(date 1493888251000)
++++ util/build.gradle	(revision )
+@@ -27,5 +27,6 @@
+         exclude group: 'com.android.support', module: 'support-annotations'
+     })
+     compile 'com.android.support:appcompat-v7:25.3.1'
++    compile 'com.squareup.okhttp3:okhttp:3.7.0'
+     testCompile 'junit:junit:4.12'
+ }
+Index: app/src/main/java/com/android/slowlife/TestActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/android/slowlife/TestActivity.java	(date 1493888251000)
++++ app/src/main/java/com/android/slowlife/TestActivity.java	(revision )
+@@ -1,34 +1,46 @@
+ package com.android.slowlife;
+ 
++import android.graphics.Bitmap;
++import android.graphics.BitmapFactory;
+ import android.os.Bundle;
+ import android.support.v7.app.AppCompatActivity;
+ import android.view.View;
+-import android.view.ViewGroup;
+ import android.widget.LinearLayout;
+ import android.widget.TextView;
+ 
++import com.android.slowlife.view.BitmapView;
++
++import java.io.File;
++import java.io.FileNotFoundException;
++import java.io.FileOutputStream;
++
+ import okhttp3.OkHttpClient;
+ 
+ public class TestActivity extends AppCompatActivity {
+ 
+     OkHttpClient okHttpClient = new OkHttpClient();
+-    ViewGroup content;
+ 
+     public static LinearLayout layout;
+     public static TextView express;
+-    public static TextView expressCompany;
++    private BitmapView bitmapView;
+ 
+     @Override
+     protected void onCreate(Bundle savedInstanceState) {
+         super.onCreate(savedInstanceState);
+         setContentView(R.layout.activity_test);
+-        content = (ViewGroup) findViewById(R.id.content);
++        bitmapView = (BitmapView) findViewById(R.id.bitmapView);
++        bitmapView.setBitmap(BitmapFactory.decodeFile("/sdcard/Android/group.png"));
+     }
+ 
+     public void onClick(View v) {
+-        View view = findViewById(R.id.view);
+-        view.bringToFront();
+-        view.getParent().bringChildToFront(view);
+-        content.bringChildToFront(view);
++        Bitmap bitmap=bitmapView.getDisposedBitmap();
++        System.out.println("width=" + bitmap.getWidth() + "\t\theight=" + bitmap.getHeight());
++        bitmapView.setBitmap(bitmap);
++        try {
++            bitmap.compress(Bitmap.CompressFormat.PNG,100,new FileOutputStream(new File("/sdcard/Android/tem.png")));
++        } catch (FileNotFoundException e) {
++            e.printStackTrace();
+-    }
++        }
++    }
++
+ }
+Index: app/src/main/java/com/android/slowlife/fragment/MyFragment.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/android/slowlife/fragment/MyFragment.java	(date 1493888251000)
++++ app/src/main/java/com/android/slowlife/fragment/MyFragment.java	(revision )
+@@ -81,7 +81,6 @@
+     @Bind(R.id.grade_layout)
+     RelativeLayout gradeLayout;
+     private Info info;
+-    private String img;
+ 
+     @Override
+     public void onCreate(@Nullable Bundle savedInstanceState) {
+@@ -103,7 +102,7 @@
+     public void onStart() {
+         super.onStart();
+         Info tem = ((MyApplication) getContext().getApplicationContext()).getInfo();
+-        if (tem != info) setData(tem);
++        setData(tem);
+     }
+ 
+     private void setData(Info info) {
+@@ -114,14 +113,13 @@
+         }
+         nameText.setText(info.getNickName());
+         phoneText.setText(info.getPhone());
+-        if (info.getHeaderImg() != img) loadImg(info.getHeaderImg());
+-        img = info.getHeaderImg();
++        if (this.info == null || info.getHeaderImg() != this.info.getHeaderImg())
++            loadImg(info.getHeaderImg());
+     }
+ 
+     private void resetData() {
+         nameText.setText("未登录");
+         phoneText.setText("");
+-        img = null;
+     }
+ 
+     /**
+@@ -141,7 +139,9 @@
+         return fragment;
+     }
+ 
+-    @OnClick({R.id.message_layout, R.id.account_rl, R.id.set_layout, R.id.head_image, R.id.balance_layout, R.id.bred_packet_layout, R.id.integral_layout, R.id.address_layout, R.id.collection_layout, R.id.recommended_prize_layout, R.id.shop_layout, R.id.service_center_layout, R.id.grade_layout})
++    @OnClick({R.id.message_layout, R.id.account_rl, R.id.set_layout, R.id.head_image, R.id.balance_layout,
++            R.id.bred_packet_layout, R.id.integral_layout, R.id.address_layout, R.id.collection_layout,
++            R.id.recommended_prize_layout, R.id.shop_layout, R.id.service_center_layout, R.id.grade_layout})
+     public void onClick(View view) {
+         Intent intent = null;
+         switch (view.getId()) {
+Index: app/src/main/res/layout/activity_test.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/activity_test.xml	(date 1493888251000)
++++ app/src/main/res/layout/activity_test.xml	(revision )
+@@ -1,9 +1,10 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
++<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+     xmlns:tools="http://schemas.android.com/tools"
+-    android:layout_width="match_parent"
+     android:id="@+id/content"
++    android:layout_width="match_parent"
+     android:layout_height="match_parent"
++    android:orientation="vertical"
+     tools:context="com.android.slowlife.TestActivity">
+ 
+ 
+@@ -22,16 +23,8 @@
+         tools:layout_editor_absoluteX="8dp"
+         tools:layout_editor_absoluteY="0dp" />
+ 
+-
+-
+-    <View
+-        android:layout_width="20dp"
+-        android:background="@color/check_bg"
+-        android:layout_centerInParent="true"
+-        android:id="@+id/view"
+-        android:layout_height="20dp" />
+-    <View
++    <com.android.slowlife.view.BitmapView
++        android:id="@+id/bitmapView"
+         android:layout_width="match_parent"
+-        android:layout_height="match_parent"
+-        android:background="@color/colorAccent" />
+-</RelativeLayout>
++        android:layout_height="match_parent" />
++</LinearLayout>
+Index: xgpush/src/main/AndroidManifest.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- xgpush/src/main/AndroidManifest.xml	(date 1493888251000)
++++ xgpush/src/main/AndroidManifest.xml	(revision )
+@@ -2,17 +2,24 @@
+ 
+     package="com.slowlife.xgpush">
+ 
+-
+-    <application >
++    <application>
+ 
+ 
++        <meta-data
++            android:name="com.tencent.rdm.uuid"
++            android:value="3e1f9c2a-50fe-4372-b582-435b6c04626d" />
+ 
++        <!-- 【必须】 (2.30及以上版新增)展示通知的activity -->
++        <activity
++            android:name="com.tencent.android.tpush.XGPushActivity"
++            android:exported="false"
++            android:theme="@android:style/Theme.Translucent">
++            <intent-filter>
++                <!-- 若使用AndroidStudio，请设置android:name="android.intent.action"-->
++                <action android:name="android.intent.action" />
++            </intent-filter>
++        </activity>
+ 
+-
+-
+-
+-
+-        <!-- 腾讯云推送服务 -->
+         <!-- 【必须】 信鸽receiver广播接收 -->
+         <receiver
+             android:name="com.tencent.android.tpush.XGPushReceiver"
+@@ -43,19 +50,6 @@
+                 <data android:scheme="file" />
+             </intent-filter>
+         </receiver>
+-
+-        <!-- 【必须】 (2.30及以上版新增)展示通知的activity -->
+-        <!-- 【注意】 如果被打开的activity是启动模式为SingleTop，SingleTask或SingleInstance，请根据通知的异常自查列表第8点处理 -->
+-        <activity
+-            android:name="com.tencent.android.tpush.XGPushActivity"
+-            android:exported="false">
+-            <intent-filter>
+-
+-                <!-- 若使用AndroidStudio，请设置android:name="android.intent.action" -->
+-                <action android:name="android.intent.action" />
+-            </intent-filter>
+-        </activity>
+-
+         <!-- 【必须】 信鸽service -->
+         <service
+             android:name="com.tencent.android.tpush.service.XGPushServiceV3"
+@@ -63,74 +57,81 @@
+             android:persistent="true"
+             android:process=":xg_service_v3" />
+ 
+-        <!-- 【必须】 增强xg_service存活率 -->
++        <!-- 【必须】 增强xg_service存活率  -->
+         <service
+             android:name="com.tencent.android.tpush.service.XGDaemonService"
+             android:process=":xg_service_v3" />
++
++
++        <!-- 【必须】 通知service，其中android:name部分要改为当前包名 -->
++        <service
++            android:name="com.tencent.android.tpush.rpc.XGRemoteService"
++            android:exported="true">
++            <intent-filter>
++                <!-- 【必须】 请修改为当前APP名包.PUSH_ACTION，如demo的包名为：com.qq.xgdemo -->
++                <action android:name="com.android.slowlife.PUSH_ACTION" />
++            </intent-filter>
++        </service>
++
+-        <!-- 【必须】 【注意】authorities修改为 包名.AUTH_XGPUSH, 如demo的包名为：com.qq.xgdemo -->
++        <!-- 【必须】 【注意】authorities修改为 包名.AUTH_XGPUSH, 如demo的包名为：com.qq.xgdemo-->
+         <provider
+             android:name="com.tencent.android.tpush.XGPushProvider"
+             android:authorities="com.android.slowlife.AUTH_XGPUSH"
+             android:exported="true" />
+ 
+-        <!-- 【必须】 【注意】authorities修改为 包名.TPUSH_PROVIDER, 如demo的包名为：com.qq.xgdemo -->
++        <!-- 【必须】 【注意】authorities修改为 包名.TPUSH_PROVIDER, 如demo的包名为：com.qq.xgdemo-->
+         <provider
+             android:name="com.tencent.android.tpush.SettingsContentProvider"
+             android:authorities="com.android.slowlife.TPUSH_PROVIDER"
+             android:exported="false" />
+ 
+-        <!-- 【必须】 【注意】authorities修改为 包名.TENCENT.MID.V3, 如demo的包名为：com.qq.xgdemo -->
++        <!-- 【必须】 【注意】authorities修改为 包名.TENCENT.MID.V3, 如demo的包名为：com.qq.xgdemo-->
+         <provider
+             android:name="com.tencent.mid.api.MidProvider"
+             android:authorities="com.android.slowlife.TENCENT.MID.V3"
+             android:exported="true"></provider>
+-        <!-- 【必须】 请将YOUR_ACCESS_ID修改为APP的AccessId，“21”开头的10位数字，中间没空格 -->
++
++
++        <!-- 【必须】 请修改为APP的AccessId，“21”开头的10位数字，中间没空格 -->
+         <meta-data
+             android:name="XG_V2_ACCESS_ID"
+             android:value="2100257768" />
+-        <!-- 【必须】 请将YOUR_ACCESS_KEY修改为APP的AccessKey，“A”开头的12位字符串，中间没空格 -->
++        <!-- 【必须】 请修改为APP的AccessKey，“A”开头的12位字符串，中间没空格 -->
+         <meta-data
+             android:name="XG_V2_ACCESS_KEY"
+             android:value="A9K57M1X8UKT" />
+ 
+-
+-        <meta-data android:name="com.tencent.rdm.uuid" android:value="3e1f9c2a-50fe-4372-b582-435b6c04626d" />
+-
+-
+-
+-
+-
+-<!--
+-        <receiver android:name="com.slowlife.xgpush.XgReceiver"
++        <receiver
++            android:name="com.slowlife.xgpush.XgReceiver"
+-            android:exported="true" >
++            android:exported="true">
+             <intent-filter>
+-                &lt;!&ndash; 接收消息透传 &ndash;&gt;
++                <!--  接收消息透传  -->
+                 <action android:name="com.tencent.android.tpush.action.PUSH_MESSAGE" />
+-                &lt;!&ndash; 监听注册、反注册、设置/删除标签、通知被点击等处理结果 &ndash;&gt;
++                <!--  监听注册、反注册、设置/删除标签、通知被点击等处理结果 -->
+                 <action android:name="com.tencent.android.tpush.action.FEEDBACK" />
+             </intent-filter>
+-        </receiver>-->
++        </receiver>
+     </application>
+ 
+-    <!-- 腾讯云推送权限 -->
+-    <!-- 【必须】 信鸽SDK所需权限 -->
++    <!-- 【必须】 信鸽SDK所需权限   -->
+     <uses-permission android:name="android.permission.INTERNET" />
+     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
++    <uses-permission android:name="android.permission.WAKE_LOCK" />
++    <uses-permission android:name="android.permission.VIBRATE" />
++    <!-- 【常用】 信鸽SDK所需权限 -->
++    <uses-permission android:name="android.permission.RECEIVE_USER_PRESENT" />
+     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
++    <!-- 【可选】 信鸽SDK所需权限 -->
++
++    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
++    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+     <uses-permission android:name="android.permission.RESTART_PACKAGES" />
+     <uses-permission android:name="android.permission.BROADCAST_STICKY" />
+-    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+-    <uses-permission android:name="android.permission.RECEIVE_USER_PRESENT" />
+-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+-    <uses-permission android:name="android.permission.WAKE_LOCK" />
+     <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES" />
+     <uses-permission android:name="android.permission.GET_TASKS" />
+     <uses-permission android:name="android.permission.READ_LOGS" />
+-    …
+-    <uses-permission android:name="android.permission.VIBRATE" />
+-    <!-- 【可选】 信鸽SDK所需权限 -->
+     <uses-permission android:name="android.permission.BLUETOOTH" />
+     <uses-permission android:name="android.permission.BATTERY_STATS" />
+ </manifest>
+Index: app/src/main/java/com/android/slowlife/activity/ImageDisposeActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/android/slowlife/activity/ImageDisposeActivity.java	(revision )
++++ app/src/main/java/com/android/slowlife/activity/ImageDisposeActivity.java	(revision )
+@@ -0,0 +1,82 @@
++package com.android.slowlife.activity;
++
++import android.app.Activity;
++import android.content.ContentResolver;
++import android.content.Intent;
++import android.graphics.Bitmap;
++import android.graphics.BitmapFactory;
++import android.net.Uri;
++import android.os.Bundle;
++import android.support.v7.app.AppCompatActivity;
++import android.text.TextUtils;
++import android.view.View;
++import android.widget.TextView;
++import android.widget.Toast;
++
++import com.android.slowlife.R;
++import com.android.slowlife.view.BitmapView;
++
++import java.io.IOException;
++
++import butterknife.Bind;
++import butterknife.ButterKnife;
++
++public class ImageDisposeActivity extends AppCompatActivity {
++
++    @Bind(R.id.bitmapView)
++    BitmapView bitmapView;
++    @Bind(R.id.edit_title)
++    TextView title;
++    public static final String TITLE = "title";
++    public static final String RESULT_IMG = "img";
++
++    @Override
++    protected void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++        setContentView(R.layout.activity_image_dispose);
++        String titleTxt = getIntent().getStringExtra(TITLE);
++        if (!TextUtils.isEmpty(titleTxt)) title.setText(titleTxt);
++
++        Intent local = new Intent();
++        local.setType("image/*");
++        local.setAction(Intent.ACTION_GET_CONTENT);
++        startActivityForResult(local, 105);
++        ButterKnife.bind(this);
++    }
++
++
++    public void onClick(View v) {
++        switch (v.getId()) {
++            case R.id.edit_back:
++                finish();
++                break;
++            case R.id.edit_done:
++                Intent intent = new Intent();
++                intent.putExtra(RESULT_IMG, bitmapView.getDisposedBitmap());
++//                setResult(Activity.RESULT_OK, intent);
++//                finish();
++                break;
++        }
++    }
++
++    @Override
++    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
++        if (requestCode == 105 && resultCode == Activity.RESULT_OK) {
++            try {
++                Uri uri = data.getData();
++                ContentResolver cr = this.getContentResolver();
++                Bitmap bmp = BitmapFactory.decodeStream(cr.openInputStream(uri));
++                bitmapView.setBitmap(bmp);
++            } catch (IOException e) {
++                Toast.makeText(this, "读取文件出错", Toast.LENGTH_SHORT).show();
++                finish();
++            }
++        }
++    }
++
++    @Override
++    protected void onDestroy() {
++        ButterKnife.unbind(this);
++        super.onDestroy();
++    }
++}
+Index: map/src/main/java/com/slowlife/map/MapActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- map/src/main/java/com/slowlife/map/MapActivity.java	(revision )
++++ map/src/main/java/com/slowlife/map/MapActivity.java	(revision )
+@@ -0,0 +1,334 @@
++package com.slowlife.map;
++
++import android.app.Activity;
++import android.content.Intent;
++import android.graphics.Bitmap;
++import android.graphics.BitmapFactory;
++import android.graphics.Color;
++import android.os.Bundle;
++import android.support.v7.app.AppCompatActivity;
++import android.util.Log;
++import android.view.View;
++
++import com.amap.api.location.AMapLocation;
++import com.amap.api.location.AMapLocationClient;
++import com.amap.api.location.AMapLocationClientOption;
++import com.amap.api.location.AMapLocationListener;
++import com.amap.api.maps2d.AMap;
++import com.amap.api.maps2d.CameraUpdate;
++import com.amap.api.maps2d.CameraUpdateFactory;
++import com.amap.api.maps2d.LocationSource;
++import com.amap.api.maps2d.MapView;
++import com.amap.api.maps2d.UiSettings;
++import com.amap.api.maps2d.model.BitmapDescriptor;
++import com.amap.api.maps2d.model.BitmapDescriptorFactory;
++import com.amap.api.maps2d.model.Circle;
++import com.amap.api.maps2d.model.CircleOptions;
++import com.amap.api.maps2d.model.LatLng;
++import com.amap.api.maps2d.model.Marker;
++import com.amap.api.maps2d.model.MarkerOptions;
++import com.amap.api.services.core.LatLonPoint;
++import com.amap.api.services.core.PoiItem;
++
++public class MapActivity extends AppCompatActivity implements LocationSource,
++        AMapLocationListener, AMap.OnMapClickListener, AMap.OnMarkerDragListener {
++
++    public static final String RESULT_ADDR = "result_addr";
++    MapView mapView;
++    protected AMap aMap;
++    protected UiSettings uiSettings;
++    protected LocationSource.OnLocationChangedListener mListener;
++    protected AMapLocationClient mlocationClient;
++    // /声明mLocationOption对象
++    protected AMapLocationClientOption mLocationOption;
++    private static final int STROKE_COLOR = Color.argb(180, 3, 145, 255);
++    private static final int FILL_COLOR = Color.argb(10, 0, 0, 180);
++    private boolean mFirstFix = false;
++    private Marker mLocMarker;
++    private SensorEventHelper mSensorHelper;
++    private Circle mCircle;
++    private Marker addr;
++    private AMapLocation mapLocation;
++    private PoiItem poiItem;
++
++    @Override
++    protected void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++        setContentView(R.layout.activity_map);
++        mapView = (MapView) findViewById(R.id.mapView);
++        mapView.onCreate(savedInstanceState);
++        initMap();
++    }
++
++    /**
++     * 初始化地图
++     */
++    private void initMap() {
++
++        if (aMap == null) {
++            if (mapView == null) return;
++            aMap = mapView.getMap();
++            uiSettings = aMap.getUiSettings();
++            uiSettings.setScaleControlsEnabled(true);
++        }
++        aMap.setOnMapClickListener(this);
++        aMap.setOnMarkerDragListener(this);
++        mlocationClient = new AMapLocationClient(this);
++        //初始化定位参数
++        mLocationOption = new AMapLocationClientOption();
++        //设置定位监听
++        mlocationClient.setLocationListener(this);
++        //设置定位模式为高精度模式，Battery_Saving为低功耗模式，Device_Sensors是仅设备模式
++        mLocationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
++        //设置定位间隔,单位毫秒,默认为2000ms
++        mLocationOption.setInterval(2000);
++        //设置定位参数
++        mlocationClient.setLocationOption(mLocationOption);
++        // 此方法为每隔固定时间会发起一次定位请求，为了减少电量消耗或网络流量消耗，
++        // 注意设置合适的定位时间的间隔（最小间隔支持为1000ms），并且在合适时间调用stopLocation()方法来取消定位请求
++        // 在定位结束后，在合适的生命周期调用onDestroy()方法
++        // 在单次定位情况下，定位无论成功与否，都无需调用stopLocation()方法移除请求，定位sdk内部会移除
++        //启动定位
++        mlocationClient.startLocation();
++    }
++
++
++    public void onClick(View v) {
++        if (v.getId() == R.id.search) {
++            Intent intent = new Intent(this, SearchAddrActivity.class);
++            if (mapLocation != null) {
++                LatLng latLng = new LatLng(mapLocation.getLatitude(), mapLocation.getLongitude());
++                intent.putExtra(SearchAddrActivity.LATLNG, latLng);
++                intent.putExtra(SearchAddrActivity.CITY, mapLocation.getProvider());
++                System.out.println(mapLocation.getExtras());
++            }
++            startActivityForResult(intent, 102);
++        }
++    }
++
++    /**
++     * 方法必须重写
++     */
++    @Override
++    protected void onResume() {
++        super.onResume();
++        if (mapView != null)
++            mapView.onResume();
++    }
++
++    /**
++     * 方法必须重写
++     */
++    @Override
++    protected void onPause() {
++        super.onPause();
++        if (mapView != null)
++            mapView.onPause();
++        mFirstFix = false;
++        deactivate();
++    }
++
++    /**
++     * 方法必须重写
++     */
++    @Override
++    protected void onSaveInstanceState(Bundle outState) {
++        super.onSaveInstanceState(outState);
++        if (mapView != null)
++            mapView.onSaveInstanceState(outState);
++    }
++
++    /**
++     * 方法必须重写
++     */
++    @Override
++    protected void onDestroy() {
++        super.onDestroy();
++        if (mapView != null) mapView.onDestroy();
++    }
++
++    /**
++     * 激活定位
++     */
++    @Override
++    public void activate(LocationSource.OnLocationChangedListener listener) {
++        mListener = listener;
++        if (mlocationClient == null) {
++            mlocationClient = new AMapLocationClient(this);
++            mLocationOption = new AMapLocationClientOption();
++            //设置定位监听
++            mlocationClient.setLocationListener(this);
++            //设置为高精度定位模式
++            mLocationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
++            //设置定位参数
++            mlocationClient.setLocationOption(mLocationOption);
++            // 此方法为每隔固定时间会发起一次定位请求，为了减少电量消耗或网络流量消耗，
++            // 注意设置合适的定位时间的间隔（最小间隔支持为2000ms），并且在合适时间调用stopLocation()方法来取消定位请求
++            // 在定位结束后，在合适的生命周期调用onDestroy()方法
++            // 在单次定位情况下，定位无论成功与否，都无需调用stopLocation()方法移除请求，定位sdk内部会移除
++            mlocationClient.startLocation();
++        }
++    }
++
++    /**
++     * 停止定位
++     */
++    @Override
++    public void deactivate() {
++        mListener = null;
++        if (mlocationClient != null) {
++            mlocationClient.stopLocation();
++            mlocationClient.onDestroy();
++        }
++        mlocationClient = null;
++    }
++
++
++    /**
++     * 定位成功后回调函数
++     */
++    @Override
++    public void onLocationChanged(AMapLocation amapLocation) {
++/*
++        if (amapLocation != null && amapLocation.getErrorCode() == 0) {
++            if (mListener != null)
++                mListener.onLocationChanged(amapLocation);// 显示系统小蓝点
++            //定位成功回调信息，设置相关消息
++            amapLocation.getLocationType();//获取当前定位结果来源，如网络定位结果，详见定位类型表
++            amapLocation.getLatitude();//获取纬度
++            amapLocation.getLongitude();//获取经度
++            amapLocation.getAccuracy();//获取精度信息
++            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
++            Date date = new Date(amapLocation.getTime());
++            df.format(date);//定位时间
++
++
++            // latitude=29.589898#longitude=106.480093
++            changeCamera(
++                    CameraUpdateFactory.newCameraPosition(new CameraPosition(
++                            new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude()), 18, 30, 30)));
++            if (aMap == null) return;
++            aMap.clear();
++            aMap.addMarker(new MarkerOptions().position(
++                    new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude()))
++                    .icon(BitmapDescriptorFactory
++                            .defaultMarker(BitmapDescriptorFactory.HUE_RED)));
++        } else {
++            //显示错误信息ErrCode是错误码，errInfo是错误信息，详见错误码表。
++            Log.e("AmapError", "location Error, ErrCode:"
++                    + amapLocation.getErrorCode() + ", errInfo:"
++                    + amapLocation.getErrorInfo());
++        }
++*/
++
++
++        if (amapLocation != null && amapLocation.getErrorCode() == 0) {
++            if (this.mapLocation == null) this.mapLocation = amapLocation;
++            if (mListener != null) mListener.onLocationChanged(amapLocation);
++            LatLng location = new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude());
++            if (!mFirstFix) {
++                mFirstFix = true;
++                addCircle(location, amapLocation.getAccuracy());//添加定位精度圆
++                addMarker(location);//添加定位图标
++//                mSensorHelper.setCurrentMarker(mLocMarker);//定位图标旋转
++                aMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 18));
++            } else {
++                mCircle.setCenter(location);
++                mCircle.setRadius(amapLocation.getAccuracy());
++                mLocMarker.setPosition(location);
++            }
++//            changeCamera(
++//                    CameraUpdateFactory.newCameraPosition(new CameraPosition(
++//                            new LatLng(amapLocation.getLatitude(), amapLocation.getLongitude()), 18, 30, 30)));
++        } else {
++            String errText = "定位失败," + amapLocation.getErrorCode() + ": " + amapLocation.getErrorInfo();
++            Log.e("AmapErr", errText);
++        }
++    }
++
++
++    /**
++     * 根据动画按钮状态，调用函数animateCamera或moveCamera来改变可视区域
++     */
++    protected void changeCamera(CameraUpdate update) {
++        if (aMap != null)
++            aMap.moveCamera(update);
++    }
++
++    private void addCircle(LatLng latlng, double radius) {
++        CircleOptions options = new CircleOptions();
++        options.strokeWidth(1f);
++        options.fillColor(FILL_COLOR);
++        options.strokeColor(STROKE_COLOR);
++        options.center(latlng);
++        options.radius(radius);
++        mCircle = aMap.addCircle(options);
++    }
++
++    private void addMarker(LatLng latlng) {
++        if (mLocMarker != null) {
++            return;
++        }
++        Bitmap bMap = BitmapFactory.decodeResource(this.getResources(),
++                R.drawable.gps_point);
++        BitmapDescriptor des = BitmapDescriptorFactory.fromBitmap(bMap);
++
++//		BitmapDescriptor des = BitmapDescriptorFactory.fromResource(R.drawable.navi_map_gps_locked);
++        MarkerOptions options = new MarkerOptions();
++        options.icon(des);
++        options.anchor(0.5f, 0.5f);
++        options.position(latlng);
++        mLocMarker = aMap.addMarker(options);
++    }
++
++    @Override
++    public void onMapClick(LatLng latLng) {
++        if (addr == null) {
++            MarkerOptions markerOption = new MarkerOptions().icon(BitmapDescriptorFactory
++                    .defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
++                    .position(latLng)
++                    .draggable(true);
++            addr = aMap.addMarker(markerOption);
++            addr.setDraggable(true);
++        } else
++            addr.setPosition(latLng);
++    }
++
++    @Override
++    public void onMarkerDragStart(Marker marker) {
++        System.out.println(marker);
++    }
++
++    @Override
++    public void onMarkerDrag(Marker marker) {
++
++    }
++
++    @Override
++    public void onMarkerDragEnd(Marker marker) {
++
++    }
++
++    @Override
++    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
++        super.onActivityResult(requestCode, resultCode, data);
++        if (requestCode == 102 && resultCode == Activity.RESULT_OK) {
++            poiItem = data.getParcelableExtra(SearchAddrActivity.RESULT);
++            if (poiItem == null) return;
++            LatLonPoint latLonPoint = poiItem.getLatLonPoint();
++            LatLng latLng = new LatLng(latLonPoint.getLatitude(), latLonPoint.getLongitude());
++            if (mLocMarker == null) addMarker(latLng);
++            else mLocMarker.setPosition(latLng);
++        }
++    }
++
++    @Override
++    public void finish() {
++        if (poiItem != null) {
++            Intent intent = new Intent();
++            intent.putExtra(RESULT_ADDR, poiItem);
++            setResult(Activity.RESULT_OK, intent);
++        }
++        super.finish();
++    }
++}
+Index: map/src/main/res/layout/activity_search_addr.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- map/src/main/res/layout/activity_search_addr.xml	(revision )
++++ map/src/main/res/layout/activity_search_addr.xml	(revision )
+@@ -0,0 +1,43 @@
++<?xml version="1.0" encoding="utf-8"?>
++<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:tools="http://schemas.android.com/tools"
++    android:layout_width="match_parent"
++    android:layout_height="match_parent"
++    android:orientation="vertical"
++    tools:context="com.slowlife.map.SearchAddrActivity">
++
++    <LinearLayout
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:gravity="center_vertical"
++        android:orientation="horizontal"
++        android:padding="8dp">
++
++        <ImageView
++            android:id="@+id/search_back"
++            android:layout_width="30dp"
++            android:layout_height="30dp"
++            android:clickable="true"
++            android:onClick="onClick"
++            android:src="@drawable/back" />
++
++        <EditText
++            android:id="@+id/search_keyword"
++            android:layout_width="match_parent"
++            android:layout_height="wrap_content"
++            android:imeActionLabel="搜索"
++            android:imeActionId="@+id/ime_search"
++            android:hint="输入搜索的位置"
++            android:imeOptions="actionSearch"
++            android:maxLines="1"
++            android:inputType="text"
++            android:padding="8dp"
++            android:textSize="14sp" />
++    </LinearLayout>
++
++    <ListView
++        android:id="@+id/search_listview"
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:layout_weight="1" />
++</LinearLayout>
+Index: xgpush/src/main/res/layout/activity_push_test.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- xgpush/src/main/res/layout/activity_push_test.xml	(revision )
++++ xgpush/src/main/res/layout/activity_push_test.xml	(revision )
+@@ -0,0 +1,26 @@
++<?xml version="1.0" encoding="utf-8"?>
++<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    android:layout_width="match_parent"
++    android:layout_height="match_parent"
++    android:orientation="vertical">
++
++
++    <EditText
++        android:id="@+id/push_test_edit"
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:layout_weight="1"
++        android:background="#fff"
++        android:gravity="start"
++        android:hint="推送内容显示区"
++        android:longClickable="false"
++        android:scrollbars="vertical"
++        android:textSize="12sp" />
++
++    <Button
++        android:id="@+id/push_test_clear"
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:onClick="onClick"
++        android:text="清除" />
++</LinearLayout>
+\ No newline at end of file
+Index: app/src/main/res/layout/fragment_home.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/fragment_home.xml	(date 1493888251000)
++++ app/src/main/res/layout/fragment_home.xml	(revision )
+@@ -1,7 +1,7 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+-    android:layout_width="match_parent"
+     android:id="@+id/ll"
++    android:layout_width="match_parent"
+     android:layout_height="match_parent"
+     android:orientation="vertical">
+ 
+@@ -43,35 +43,40 @@
+ 
+     <android.support.v4.view.ViewPager
+         android:layout_width="match_parent"
+-        android:visibility="gone"
+-        android:layout_height="150dp" />
++        android:layout_height="150dp"
++        android:visibility="gone" />
+ 
++    <ImageView
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:src="@drawable/banner" />
++
+     <RelativeLayout
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+-        android:background="#ccc"
+-        android:layout_weight="1">
++        android:layout_weight="1"
++        android:background="@drawable/index_bg">
+ 
+         <LinearLayout
+             android:id="@+id/fragment_layout_express"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_alignParentBottom="true"
+-            android:layout_marginBottom="10dp"
+-            android:layout_centerHorizontal="true">
++            android:layout_centerHorizontal="true"
++            android:layout_marginBottom="20dp">
+ 
+             <Button
+                 android:id="@+id/fragment_express"
+-                android:layout_width="110dp"
+-                android:layout_height="120dp"
++                android:layout_width="140dp"
++                android:layout_height="150dp"
+                 android:background="@drawable/express_selector"
+                 android:text="同城快递"
+                 android:textColor="@color/white" />
+ 
+             <Button
+                 android:id="@+id/fragment_express1"
+-                android:layout_width="110dp"
+-                android:layout_height="120dp"
++                android:layout_width="140dp"
++                android:layout_height="150dp"
+                 android:layout_marginLeft="50dp"
+                 android:background="@drawable/express1_selector"
+                 android:text="区外快递"
+@@ -81,11 +86,11 @@
+         <Button
+             android:id="@+id/fragment_home_logo"
+             android:layout_width="110dp"
+-            android:layout_marginBottom="-20dp"
+             android:layout_height="120dp"
+-            android:background="@mipmap/home_logo"
+             android:layout_above="@+id/fragment_layout_express"
+-            android:layout_centerHorizontal="true" />
++            android:layout_centerHorizontal="true"
++            android:layout_marginBottom="-10dp"
++            android:background="@mipmap/home_logo" />
+ 
+         <TextView
+             android:id="@+id/fragment_home_temperature"
+\ No newline at end of file
+Index: xgpush/src/main/java/com/slowlife/xgpush/PushTestActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- xgpush/src/main/java/com/slowlife/xgpush/PushTestActivity.java	(revision )
++++ xgpush/src/main/java/com/slowlife/xgpush/PushTestActivity.java	(revision )
+@@ -0,0 +1,61 @@
++package com.slowlife.xgpush;
++
++
++import android.os.Bundle;
++import android.support.annotation.Nullable;
++import android.support.v7.app.AppCompatActivity;
++import android.view.View;
++import android.widget.EditText;
++
++import com.tencent.android.tpush.XGPushTextMessage;
++
++/**
++ * Created by sgrape on 2017/5/8.
++ * e-mail: sgrape1153@gmail.com
++ */
++
++public class PushTestActivity extends AppCompatActivity implements XgReceiver.PushCallback {
++    EditText editText;
++
++    @Override
++    protected void onCreate(@Nullable Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++        setContentView(R.layout.activity_push_test);
++        editText = (EditText) findViewById(R.id.push_test_edit);
++    }
++
++    public void onClick(View view) {
++        editText.setText("");
++    }
++
++    @Override
++    protected void onResume() {
++        XgReceiver.PushObserver.regisiter(this);
++        super.onResume();
++    }
++
++    @Override
++    public void onPush(XGPushTextMessage message) {
++        editText.append("\n\n");
++        editText.append(message.getContent());
++        System.out.println(message);
++    }
++
++    @Override
++    public void onPush(final String message) {
++        runOnUiThread(new Runnable() {
++            @Override
++            public void run() {
++                editText.append("\n\n");
++                editText.append(message);
++            }
++        });
++        System.out.println(message);
++    }
++
++    @Override
++    protected void onPause() {
++        XgReceiver.PushObserver.unRegisiter(this);
++        super.onPause();
++    }
++}
+Index: interfaceconfig/src/main/java/com/interfaceconfig/Config.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- interfaceconfig/src/main/java/com/interfaceconfig/Config.java	(date 1493888251000)
++++ interfaceconfig/src/main/java/com/interfaceconfig/Config.java	(revision )
+@@ -1,7 +1,7 @@
+ package com.interfaceconfig;
+ 
+ public interface Config {
+-    String LOCAL_HOST = "http://192.168.1.109:8080/";
++    String LOCAL_HOST = "http://192.168.1.112:8080/";
+ 
+     // 登录
+     String LOGIN = "slowlife/appuser/userlogin";
+@@ -19,6 +19,11 @@
+      * 改绑手机号
+      */
+     String MOTIFYPHONE = "slowlife/appuser/updatePhone";
++
++    /**
++     * 上传文件
++     */
++    String UPLOADFILE="slowlife/appuser/uploaduserimgs";
+ 
+     static class Url {
+         public static String getUrl(String url) {
+Index: app/src/main/java/com/android/slowlife/view/BitmapView.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/android/slowlife/view/BitmapView.java	(revision )
++++ app/src/main/java/com/android/slowlife/view/BitmapView.java	(revision )
+@@ -0,0 +1,250 @@
++package com.android.slowlife.view;
++
++import android.content.Context;
++import android.graphics.Bitmap;
++import android.graphics.BitmapFactory;
++import android.graphics.Canvas;
++import android.graphics.Color;
++import android.graphics.Matrix;
++import android.graphics.Paint;
++import android.graphics.PaintFlagsDrawFilter;
++import android.graphics.PointF;
++import android.graphics.PorterDuff;
++import android.graphics.PorterDuffXfermode;
++import android.graphics.Rect;
++import android.graphics.RectF;
++import android.support.annotation.DrawableRes;
++import android.support.annotation.NonNull;
++import android.support.annotation.Nullable;
++import android.util.AttributeSet;
++import android.view.MotionEvent;
++import android.view.View;
++import android.view.ViewConfiguration;
++
++import com.DisplayUtil;
++
++/**
++ * Created by sgrape on 2017/5/4.
++ * e-mail: sgrape1153@gmail.com
++ */
++
++public class BitmapView extends View {
++    private final int scaledtouchslop;
++    private Bitmap img;
++    private Paint rectPaint;
++    private Paint imgPaint;
++    private int rectSize;
++    private PointF point;
++    private PointF pressDown;
++    private RectF rectF;
++    private boolean move;
++    private RectF imgRectF;
++    private Bitmap resImg;
++
++    public BitmapView(Context context) {
++        this(context, null);
++    }
++
++    public BitmapView(Context context, @Nullable AttributeSet attrs) {
++        this(context, attrs, 0);
++    }
++
++    public BitmapView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
++        super(context, attrs, defStyleAttr);
++        rectSize = DisplayUtil.px2dip(context, 200);
++        rectSize = 200;
++        rectPaint = new Paint();
++        rectPaint.setAntiAlias(true);
++        rectPaint.setColor(Color.RED);
++        rectPaint.setStrokeWidth(DisplayUtil.dip2px(context, 0.5f));
++        rectPaint.setStyle(Paint.Style.STROKE);
++        point = new PointF();
++        imgPaint = new Paint();
++        rectF = new RectF(0, 0, rectSize, rectSize);
++        imgPaint.setAntiAlias(true);
++        ViewConfiguration viewConfiguration = ViewConfiguration.get(context);
++        scaledtouchslop = viewConfiguration.getScaledTouchSlop();
++        pressDown = new PointF();
++    }
++
++    @Override
++    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
++        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
++        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
++        int width = 0, height = 0;
++        switch (widthMode) {
++            case MeasureSpec.EXACTLY:
++                width = MeasureSpec.getSize(widthMeasureSpec);
++                break;
++            case MeasureSpec.AT_MOST:
++                width = Math.min(getBackground().getMinimumWidth(), getMinimumWidth());
++                break;
++            case MeasureSpec.UNSPECIFIED:
++                width = getDefaultSize(0, widthMeasureSpec);
++                break;
++        }
++        switch (heightMode) {
++            case MeasureSpec.EXACTLY:
++                height = MeasureSpec.getSize(heightMeasureSpec);
++                break;
++            case MeasureSpec.AT_MOST:
++                height = Math.min(getBackground().getMinimumHeight(), getMinimumHeight());
++                break;
++            case MeasureSpec.UNSPECIFIED:
++                height = getDefaultSize(0, heightMeasureSpec);
++                break;
++        }
++        rectF.set((getMeasuredWidth() - rectSize) / 2, (getMeasuredHeight() - rectSize) / 2,
++                (getMeasuredWidth() + rectSize) / 2, (getMeasuredHeight() + rectSize) / 2);
++        setMeasuredDimension(width, height);
++    }
++
++
++    @Override
++    public void onDraw(Canvas canvas) {
++        canvas.setDrawFilter(new PaintFlagsDrawFilter(0, Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG));
++        if (img != null) {
++            float left = (getWidth() - img.getWidth()) / 2.0f;
++            float top = (getHeight() - img.getHeight()) / 2.0f;
++            canvas.drawBitmap(img, left, top, imgPaint);
++        }
++
++        float left = rectF.left + point.x - pressDown.x;
++        float top = rectF.top + point.y - pressDown.y;
++        if (left < 0) left = 0;
++        if (left + rectSize > getMeasuredWidth()) left = getMeasuredWidth() - rectSize;
++        if (top < 0) top = 0;
++        if (top + rectSize > getMeasuredHeight()) top = getMeasuredHeight() - rectSize;
++        canvas.drawRect(left, top, left + rectSize, top + rectSize, rectPaint);
++        if (resImg != null)
++            canvas.drawBitmap(resImg, null, new Rect(0, 0, resImg.getWidth(), resImg.getHeight()), null);
++    }
++
++
++    public void setBitmap(@NonNull Bitmap bitmap) {
++        this.img = bitmap;
++        invalidate();
++    }
++
++    @Override
++    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
++        super.onSizeChanged(w, h, oldw, oldh);
++        if (img == null) return;
++        Bitmap bitmap = this.img;
++        int width = bitmap.getWidth();
++        int height = bitmap.getHeight();
++        int maxWidth = getMeasuredWidth();
++        int maxHeight = getMeasuredHeight();
++        int newWidth = Math.min(width, maxWidth);
++        int newHeight = Math.min(height, maxHeight);
++        if (newWidth == width && newHeight == height) {
++            img = bitmap;
++        } else {
++            float scaleWidth = ((float) newWidth) / width;
++            float scaleHeight = ((float) newHeight) / height;
++            Matrix matrix = new Matrix();
++            matrix.postScale(scaleWidth, scaleHeight);
++            // if you want to rotate the Bitmap
++            // matrix.postRotate(45);
++            img = Bitmap.createBitmap(bitmap, 0, 0, width,
++                    height, matrix, true);
++        }
++        if (imgRectF == null) imgRectF = new RectF();
++        imgRectF.set((getMeasuredWidth() - width) / 2, (getMeasuredHeight() - height) / 2,
++                (getMeasuredWidth() + width) / 2, (getMeasuredHeight() + height) / 2);
++    }
++
++    public void setBitmapResource(@DrawableRes int id) {
++        setBitmap(BitmapFactory.decodeResource(getResources(), id));
++    }
++
++    @Override
++    public boolean onTouchEvent(MotionEvent event) {
++        switch (event.getAction()) {
++            case MotionEvent.ACTION_DOWN:
++                float left = rectF.left + point.x - pressDown.x;
++                float top = rectF.top + point.y - pressDown.y;
++                if (left < 0) left = 0;
++                if (left + rectSize > getMeasuredWidth()) left = getMeasuredWidth() - rectSize;
++                if (top < 0) top = 0;
++                if (top + rectSize > getMeasuredHeight()) top = getMeasuredHeight() - rectSize;
++                rectF.set(left, top, left + rectSize, top + rectSize);
++                pressDown.set(event.getX(), event.getY());
++                invalidate();
++                break;
++            case MotionEvent.ACTION_CANCEL:
++            case MotionEvent.ACTION_UP:
++                break;
++            case MotionEvent.ACTION_MOVE:
++                if (move
++                        || Math.abs(event.getX() - pressDown.x) > scaledtouchslop
++                        || Math.abs(event.getY() - pressDown.y) > scaledtouchslop) {
++
++                    move = true;
++                    point.set(event.getX(), event.getY());
++                    invalidate();
++                }
++                break;
++        }
++        super.onTouchEvent(event);
++        return true;
++    }
++
++    public Bitmap getBitmap() {
++        return img;
++    }
++
++    public Bitmap getDisposedBitmap() {
++        if (img == null) return null;
++        Bitmap bitmap = Bitmap.createBitmap(rectSize, rectSize, Bitmap.Config.ARGB_8888);
++        Canvas canvas = new Canvas(bitmap);
++        Paint p = new Paint();
++        p.setAntiAlias(true);
++        float left = (getMeasuredWidth() - img.getWidth()) / 2.0f;
++        float top = (getMeasuredHeight() - img.getHeight()) / 2.0f;
++        RectF rect = new RectF(rectF.left - left, rectF.top - top, rectF.left - left + rectSize, rectF.top - top + rectSize);
++
++
++        canvas.drawRect(rect, p);
++        //设置当两个图形相交时的模式，SRC_IN为取SRC图形相交的部分，多余的将被去掉
++        p.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.OVERLAY));
++        //canvas将bitmap画在backgroundBmp上
++        canvas.drawBitmap(img, -rect.left, -rect.top, p);
++
++        /*
++        try {
++            Bitmap bitmap1 = Bitmap.createBitmap(img.getWidth(), img.getHeight(), Bitmap.Config.ARGB_8888);
++            Canvas canvas1 = new Canvas(bitmap1);
++            Paint p1 = new Paint();
++            p1.setAntiAlias(true);
++            p.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_OVER));
++            canvas1.drawBitmap(img, 0, 0, p);
++            p1.setStyle(Paint.Style.STROKE);
++            p1.setStrokeWidth(1);
++            p1.setColor(Color.BLACK);
++            canvas1.drawRect(rect, p1);
++            bitmap1.compress(Bitmap.CompressFormat.PNG, 100, new FileOutputStream(new File("/sdcard/Android/tem1.png")));
++        } catch (FileNotFoundException e) {
++            e.printStackTrace();
++        }
++        */
++        resImg = bitmap;
++        invalidate();
++        return bitmap;
++    }
++
++    public void setRectColor(int color) {
++        rectPaint.setColor(color);
++        invalidate();
++    }
++
++    public int getRectSize() {
++        return rectSize;
++    }
++
++    public void setRectSize(int rectSize) {
++        this.rectSize = rectSize;
++        invalidate();
++    }
++
++}
+Index: app/src/main/java/com/android/slowlife/app/MyApplication.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/android/slowlife/app/MyApplication.java	(date 1493888251000)
++++ app/src/main/java/com/android/slowlife/app/MyApplication.java	(revision )
+@@ -3,18 +3,32 @@
+ import android.app.ActivityManager;
+ import android.app.Application;
+ import android.content.Context;
++import android.graphics.BitmapFactory;
++import android.os.Environment;
++import android.os.Handler;
++import android.os.Looper;
+ import android.util.Log;
+ 
+ import com.android.slowlife.bean.Info;
+ import com.android.slowlife.util.CacheActivity;
++import com.slowlife.xgpush.XgReceiver;
+ import com.tencent.android.tpush.XGIOperateCallback;
+ import com.tencent.android.tpush.XGNotifaction;
+ import com.tencent.android.tpush.XGPushManager;
+ import com.tencent.android.tpush.XGPushNotifactionCallback;
+ import com.tencent.android.tpush.common.Constants;
+ 
++import java.io.FileOutputStream;
++import java.io.IOException;
++import java.io.InputStream;
+ import java.util.List;
+ 
++import okhttp3.Call;
++import okhttp3.Callback;
++import okhttp3.OkHttpClient;
++import okhttp3.Request;
++import okhttp3.Response;
++
+ /**
+  * Created by Administrator on 2017/1/19 .
+  */
+@@ -42,6 +56,12 @@
+         mContext = getApplicationContext();
+         singleton = this;
+         // 在主进程设置信鸽相关的内容
++        new Handler(Looper.myLooper()).post(new Runnable() {
++            @Override
++            public void run() {
++
++            }
++        });
+         if (isMainProcess()) {
+             // 为保证弹出通知前一定调用本方法，需要在application的onCreate注册
+             // 收到通知时，会调用本回调函数。
+@@ -56,6 +76,9 @@
+                     String title = xGNotifaction.getTitle();
+                     String content = xGNotifaction.getContent();
+                     String customContent = xGNotifaction.getCustomContent();
++                    XgReceiver.PushObserver.notifyPsuh("title=" + title +
++                            "\ncontent=" + content +
++                            "\ncustomContent=" + customContent);
+                     // 其它的处理
+                     // 如果还要弹出通知，可直接调用以下代码或自己创建Notifaction，否则，本通知将不会弹出在通知栏中。
+                     xGNotifaction.doNotify();
+@@ -119,5 +142,44 @@
+             }
+         }
+         return false;
++    }
++
++    public void loadImg() {
++        if (info == null) return;
++        Request request = new Request.Builder().url(info.getHeaderImg()).build();
++        new OkHttpClient().newCall(request).enqueue(new Callback() {
++            @Override
++            public void onFailure(Call call, IOException e) {
++            }
++
++            @Override
++            public void onResponse(Call call, Response response) throws IOException {
++
++                InputStream is = null;
++                byte[] buf = new byte[2048];
++                int len = 0;
++                FileOutputStream fos = null;
++                String SDPath = Environment.getExternalStorageDirectory().getAbsolutePath();
++                try {
++                    is = response.body().byteStream();
++                    info.setHead(BitmapFactory.decodeStream(is));
++                    Log.d("h_bl", "文件下载成功");
++                } catch (Exception e) {
++                    Log.d("h_bl", "文件下载失败");
++                } finally {
++                    try {
++                        if (is != null)
++                            is.close();
++                    } catch (IOException e) {
++                    }
++                    try {
++                        if (fos != null)
++                            fos.close();
++                    } catch (IOException e) {
++                    }
++                }
++            }
++
++        });
+     }
+ }
+Index: app/src/main/java/com/android/slowlife/activity/DeliveryOrdersActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/android/slowlife/activity/DeliveryOrdersActivity.java	(date 1493888251000)
++++ app/src/main/java/com/android/slowlife/activity/DeliveryOrdersActivity.java	(revision )
+@@ -30,7 +30,7 @@
+ /**
+  * Created by Administrator on 2017/2/8 0008.
+  * <p>
+- * TODO 真正送货
++ * TODO 正在送货
+  */
+ 
+ public class DeliveryOrdersActivity extends MapActivity {
+Index: app/src/main/java/com/android/slowlife/fragment/ServeLoginFragment.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/android/slowlife/fragment/ServeLoginFragment.java	(date 1493888251000)
++++ app/src/main/java/com/android/slowlife/fragment/ServeLoginFragment.java	(revision )
+@@ -141,7 +141,7 @@
+         JSONObject userJson = new JSONObject();
+         try {
+             userJson.put("phone", account);
+-            userJson.put("password", MD5.md5(pwd));
++            userJson.put("password", MD5.md5Pwd(pwd));
+             userJson.put("phoneType", "Android");
+             userJson.put("token", ((MyApplication) getActivity().getApplication()).getToken());
+ 
+Index: app/src/main/res/layout/activity_image_dispose.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/activity_image_dispose.xml	(revision )
++++ app/src/main/res/layout/activity_image_dispose.xml	(revision )
+@@ -0,0 +1,52 @@
++<?xml version="1.0" encoding="utf-8"?>
++<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    android:layout_width="match_parent"
++    android:layout_height="match_parent"
++    android:orientation="vertical">
++
++    <RelativeLayout
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:background="@color/red"
++        android:gravity="center_vertical">
++
++        <ImageButton
++            android:layout_width="wrap_content"
++            android:layout_height="wrap_content"
++            android:layout_centerVertical="true"
++            android:background="@null"
++            android:id="@+id/edit_back"
++            android:onClick="onClick"
++            android:padding="10dp"
++            android:src="@drawable/back" />
++
++        <TextView
++            android:layout_width="wrap_content"
++            android:layout_height="wrap_content"
++            android:layout_centerInParent="true"
++            android:text="编辑图片"
++            android:textColor="@color/white"
++            android:id="@+id/edit_title"
++            android:textSize="16sp"
++            android:textStyle="bold" />
++
++        <TextView
++            android:layout_width="wrap_content"
++            android:layout_height="wrap_content"
++            android:layout_alignParentRight="true"
++            android:layout_centerVertical="true"
++            android:background="@color/red"
++            android:onClick="onClick"
++            android:id="@+id/edit_done"
++            android:padding="10dp"
++            android:text="完成"
++            android:textColor="@color/white" />
++
++    </RelativeLayout>
++
++    <com.android.slowlife.view.BitmapView
++        android:id="@+id/bitmapView"
++        android:layout_width="match_parent"
++        android:layout_height="0dp"
++        android:layout_weight="1" />
++</LinearLayout>
+\ No newline at end of file
+Index: map/src/main/java/com/slowlife/map/SensorEventHelper.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- map/src/main/java/com/slowlife/map/SensorEventHelper.java	(revision )
++++ map/src/main/java/com/slowlife/map/SensorEventHelper.java	(revision )
+@@ -0,0 +1,98 @@
++package com.slowlife.map;
++
++import android.content.Context;
++import android.hardware.Sensor;
++import android.hardware.SensorEvent;
++import android.hardware.SensorEventListener;
++import android.hardware.SensorManager;
++import android.view.Display;
++import android.view.Surface;
++import android.view.WindowManager;
++
++import com.amap.api.maps2d.model.Marker;
++
++public class SensorEventHelper implements SensorEventListener {
++
++	private SensorManager mSensorManager;
++	private Sensor mSensor;
++	private long lastTime = 0;
++	private final int TIME_SENSOR = 100;
++	private float mAngle;
++	private Context mContext;
++	private Marker mMarker;
++
++	public SensorEventHelper(Context context) {
++		mContext = context;
++		mSensorManager = (SensorManager) context
++				.getSystemService(Context.SENSOR_SERVICE);
++		mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
++
++	}
++
++	public void registerSensorListener() {
++		mSensorManager.registerListener(this, mSensor,
++				SensorManager.SENSOR_DELAY_NORMAL);
++	}
++
++	public void unRegisterSensorListener() {
++		mSensorManager.unregisterListener(this, mSensor);
++	}
++
++	public void setCurrentMarker(Marker marker) {
++		mMarker = marker;
++	}
++
++	@Override
++	public void onAccuracyChanged(Sensor sensor, int accuracy) {
++		// TODO Auto-generated method stub
++
++	}
++
++	@Override
++	public void onSensorChanged(SensorEvent event) {
++		if (System.currentTimeMillis() - lastTime < TIME_SENSOR) {
++			return;
++		}
++		switch (event.sensor.getType()) {
++		case Sensor.TYPE_ORIENTATION: {
++			float x = event.values[0];
++			x += getScreenRotationOnPhone(mContext);
++			x %= 360.0F;
++			if (x > 180.0F)
++				x -= 360.0F;
++			else if (x < -180.0F)
++				x += 360.0F;
++			
++			if (Math.abs(mAngle - x) < 3.0f) {
++				break;
++			}
++			mAngle = Float.isNaN(x) ? 0 : x;
++			if (mMarker != null) {
++				mMarker.setRotateAngle(360-mAngle);
++			}
++			lastTime = System.currentTimeMillis();
++		}
++		}
++
++	}
++
++	public static int getScreenRotationOnPhone(Context context) {
++		final Display display = ((WindowManager) context
++				.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
++
++		switch (display.getRotation()) {
++		case Surface.ROTATION_0:
++			return 0;
++
++		case Surface.ROTATION_90:
++			return 90;
++
++		case Surface.ROTATION_180:
++			return 180;
++
++		case Surface.ROTATION_270:
++			return -90;
++		}
++		return 0;
++	}
++}
+Index: app/build.gradle
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/build.gradle	(date 1493888251000)
++++ app/build.gradle	(revision )
+@@ -48,6 +48,7 @@
+     compile project(':xgpush')
+     compile project(':pay')
+     compile project(':interfaceconfig')
++    compile project(':map')
+     compile 'com.android.support:appcompat-v7:25.3.1'
+     compile 'com.android.support:support-v4:25.3.1'
+     compile 'com.android.support:design:25.3.1'
+@@ -55,9 +56,7 @@
+     compile 'com.nineoldandroids:library:2.4.0'
+     compile 'com.jakewharton:butterknife:7.0.0'
+     compile 'com.google.code.gson:gson:2.8.0'
+-    compile 'com.squareup.okhttp3:okhttp:3.6.0'
+     compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha8'
+     compile 'com.squareup.okio:okio:1.12.0'
+     testCompile 'junit:junit:4.12'
+-    compile project(':map')
+ }
+\ No newline at end of file
+Index: app/src/main/java/com/android/slowlife/activity/RegisterActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/android/slowlife/activity/RegisterActivity.java	(date 1493888251000)
++++ app/src/main/java/com/android/slowlife/activity/RegisterActivity.java	(revision )
+@@ -155,7 +155,7 @@
+             smsJson.put("code", code);
+             JSONObject userJson = new JSONObject();
+             userJson.put("phone", phone);
+-            userJson.put("password", MD5.md5(pwd));
++            userJson.put("password", MD5.md5Pwd(pwd));
+             userJson.put("type", "General");
+             userJson.put("phoneType", "Android");
+             userJson.put("token", ((MyApplication) getApplication()).getToken());
+Index: app/src/main/res/layout/activity_new_address.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/activity_new_address.xml	(date 1493888251000)
++++ app/src/main/res/layout/activity_new_address.xml	(revision )
+@@ -2,8 +2,8 @@
+ <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+     android:layout_width="match_parent"
+     android:layout_height="match_parent"
+-    android:orientation="vertical"
+-    android:fitsSystemWindows="true">
++    android:fitsSystemWindows="true"
++    android:orientation="vertical">
+ 
+     <RelativeLayout
+         android:id="@+id/top_layout"
+@@ -32,12 +32,14 @@
+             android:textColor="@color/white"
+             android:textSize="16sp" />
+     </RelativeLayout>
++
+     <LinearLayout
+         android:layout_width="match_parent"
+         android:layout_height="40dp"
+-        android:orientation="horizontal"
++        android:layout_marginLeft="16dp"
+         android:layout_marginRight="16dp"
+-        android:layout_marginLeft="16dp">
++        android:orientation="horizontal">
++
+         <TextView
+             android:layout_width="0dp"
+             android:layout_height="match_parent"
+@@ -45,26 +47,31 @@
+             android:gravity="center_vertical"
+             android:text="收货人"
+             android:textColor="@color/text_color"
+-            android:textSize="14sp"/>
++            android:textSize="14sp" />
++
+         <EditText
+             android:id="@+id/name_edit"
+             android:layout_width="0dp"
+             android:layout_height="match_parent"
+             android:layout_weight="3"
++            android:background="@null"
++            android:drawableBottom="@drawable/line"
+             android:gravity="center_vertical"
+             android:hint="姓名"
+-            android:textColorHint="@color/hint_text_color"
++            android:maxLength="5"
++            android:maxLines="1"
+             android:textColor="@color/text_color"
+-            android:textSize="14sp"
+-            android:background="@null"
+-            android:drawableBottom="@drawable/line" />
++            android:textColorHint="@color/hint_text_color"
++            android:textSize="14sp" />
+     </LinearLayout>
++
+     <LinearLayout
+         android:layout_width="match_parent"
+         android:layout_height="40dp"
+-        android:orientation="horizontal"
++        android:layout_marginLeft="16dp"
+         android:layout_marginRight="16dp"
+-        android:layout_marginLeft="16dp">
++        android:orientation="horizontal">
++
+         <TextView
+             android:layout_width="0dp"
+             android:layout_height="match_parent"
+@@ -72,47 +79,52 @@
+             android:gravity="center_vertical"
+             android:text=""
+             android:textColor="@color/text_color"
+-            android:textSize="16sp"/>
++            android:textSize="16sp" />
++
+         <RadioGroup
+             android:id="@+id/radioGroup"
+             android:layout_width="0dp"
+             android:layout_height="match_parent"
+             android:layout_weight="3"
+-            android:orientation="horizontal"
+-            android:gravity="center_vertical">
++            android:gravity="center_vertical"
++            android:orientation="horizontal">
++
+             <RadioButton
+                 android:id="@+id/sir_text"
+                 android:layout_width="70dp"
+                 android:layout_height="30dp"
++                android:background="@drawable/radio_background"
+                 android:button="@null"
+-                android:clickable="true"
++                android:checked="true"
+                 android:drawablePadding="6dp"
+                 android:gravity="center"
+                 android:text="先生"
+                 android:textColor="@drawable/radio_textcolor"
+-                android:textSize="12sp"
+-                android:background="@drawable/radio_background" />
++                android:textSize="12sp" />
++
+             <RadioButton
+                 android:id="@+id/madam_text"
+                 android:layout_width="70dp"
+                 android:layout_height="30dp"
++                android:layout_marginLeft="10dp"
++                android:background="@drawable/radio_background"
+                 android:button="@null"
+                 android:clickable="true"
+                 android:drawablePadding="6dp"
+                 android:gravity="center"
+                 android:text="女士"
+                 android:textColor="@drawable/radio_textcolor"
+-                android:textSize="12sp"
+-                android:background="@drawable/radio_background"
+-                android:layout_marginLeft="10dp"/>
++                android:textSize="12sp" />
+         </RadioGroup>
+     </LinearLayout>
++
+     <LinearLayout
+         android:layout_width="match_parent"
+         android:layout_height="40dp"
+-        android:orientation="horizontal"
++        android:layout_marginLeft="16dp"
+         android:layout_marginRight="16dp"
+-        android:layout_marginLeft="16dp">
++        android:orientation="horizontal">
++
+         <TextView
+             android:layout_width="0dp"
+             android:layout_height="match_parent"
+@@ -120,53 +132,63 @@
+             android:gravity="center_vertical"
+             android:text="联系电话"
+             android:textColor="@color/text_color"
+-            android:textSize="14sp"/>
++            android:textSize="14sp" />
++
+         <LinearLayout
+             android:layout_width="0dp"
+             android:layout_height="match_parent"
+             android:layout_weight="3"
+-            android:orientation="horizontal"
+-            android:gravity="center_vertical">
++            android:gravity="center_vertical"
++            android:orientation="horizontal">
++
+             <EditText
+                 android:id="@+id/phone_edit"
+                 android:layout_width="0dp"
+                 android:layout_height="match_parent"
+                 android:layout_weight="3"
++                android:background="@null"
++                android:drawableBottom="@drawable/line"
+                 android:gravity="center_vertical"
+                 android:hint="收货人电话"
+-                android:textColorHint="@color/hint_text_color"
++                android:inputType="phone"
++                android:maxLength="11"
++                android:maxLines="1"
+                 android:textColor="@color/text_color"
+-                android:textSize="14sp"
+-                android:background="@null"
+-                android:drawableBottom="@drawable/line" />
++                android:textColorHint="@color/hint_text_color"
++                android:textSize="14sp" />
++
+             <LinearLayout
+                 android:id="@+id/add_phone_book_layout"
+                 android:layout_width="0dp"
+                 android:layout_height="match_parent"
+                 android:layout_weight="1"
+-                android:orientation="horizontal"
+-                android:gravity="center">
++                android:gravity="center"
++                android:orientation="horizontal">
++
+                 <ImageView
+                     android:layout_width="10dp"
+                     android:layout_height="10dp"
+-                    android:background="@drawable/add"/>
++                    android:background="@drawable/add" />
++
+                 <TextView
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
++                    android:layout_marginLeft="6dp"
+                     android:gravity="center"
+                     android:text="通讯录"
+                     android:textColor="@color/red"
+-                    android:textSize="12sp"
+-                    android:layout_marginLeft="6dp"/>
++                    android:textSize="12sp" />
+             </LinearLayout>
+         </LinearLayout>
+     </LinearLayout>
++
+     <LinearLayout
+         android:layout_width="match_parent"
+         android:layout_height="40dp"
+-        android:orientation="horizontal"
++        android:layout_marginLeft="16dp"
+         android:layout_marginRight="16dp"
+-        android:layout_marginLeft="16dp">
++        android:orientation="horizontal">
++
+         <TextView
+             android:layout_width="0dp"
+             android:layout_height="match_parent"
+@@ -174,14 +196,16 @@
+             android:gravity="center_vertical"
+             android:text="地址"
+             android:textColor="@color/text_color"
+-            android:textSize="14sp"/>
++            android:textSize="14sp" />
++
+         <LinearLayout
+             android:id="@+id/address_layout"
+             android:layout_width="0dp"
+             android:layout_height="match_parent"
+             android:layout_weight="3"
+-            android:orientation="horizontal"
+-            android:gravity="center_vertical">
++            android:gravity="center_vertical"
++            android:orientation="horizontal">
++
+             <TextView
+                 android:id="@+id/address"
+                 android:layout_width="0dp"
+@@ -197,21 +221,24 @@
+                 android:layout_height="match_parent"
+                 android:layout_weight="1"
+                 android:orientation="horizontal">
++
+                 <ImageView
+                     android:layout_width="10dp"
+                     android:layout_height="13dp"
+-                    android:background="@drawable/down"
+                     android:layout_alignParentRight="true"
+-                    android:layout_centerVertical="true"/>
++                    android:layout_centerVertical="true"
++                    android:background="@drawable/down" />
+             </RelativeLayout>
+         </LinearLayout>
+     </LinearLayout>
++
+     <LinearLayout
+         android:layout_width="match_parent"
+         android:layout_height="40dp"
+-        android:orientation="horizontal"
++        android:layout_marginLeft="16dp"
+         android:layout_marginRight="16dp"
+-        android:layout_marginLeft="16dp">
++        android:orientation="horizontal">
++
+         <TextView
+             android:layout_width="0dp"
+             android:layout_height="match_parent"
+@@ -219,25 +246,29 @@
+             android:gravity="center_vertical"
+             android:text=""
+             android:textColor="@color/text_color"
+-            android:textSize="16sp"/>
++            android:textSize="16sp" />
++
+         <EditText
+             android:id="@+id/address_edit"
+             android:layout_width="0dp"
+             android:layout_height="match_parent"
+             android:layout_weight="3"
++            android:background="@null"
++            android:drawableBottom="@drawable/line"
+             android:gravity="center_vertical"
+             android:hint="详细地址"
++            android:maxLines="1"
+             android:textColor="@color/text_color"
+-            android:textSize="14sp"
+-            android:background="@null"
+-            android:drawableBottom="@drawable/line"/>
++            android:textSize="14sp" />
+     </LinearLayout>
++
+     <LinearLayout
+         android:layout_width="match_parent"
+         android:layout_height="40dp"
+-        android:orientation="horizontal"
++        android:layout_marginLeft="16dp"
+         android:layout_marginRight="16dp"
+-        android:layout_marginLeft="16dp">
++        android:orientation="horizontal">
++
+         <TextView
+             android:layout_width="0dp"
+             android:layout_height="match_parent"
+@@ -245,25 +276,28 @@
+             android:gravity="center_vertical"
+             android:text="门牌号"
+             android:textColor="@color/text_color"
+-            android:textSize="14sp"/>
++            android:textSize="14sp" />
++
+         <EditText
+             android:id="@+id/house_number_edit"
+             android:layout_width="0dp"
+             android:layout_height="match_parent"
+             android:layout_weight="3"
++            android:background="@null"
++            android:drawableBottom="@drawable/line"
+             android:gravity="center_vertical"
+             android:hint="例：5号楼203室"
+             android:textColor="@color/text_color"
+-            android:textSize="14sp"
+-            android:background="@null"
+-            android:drawableBottom="@drawable/line"/>
++            android:textSize="14sp" />
+     </LinearLayout>
++
+     <LinearLayout
+         android:layout_width="match_parent"
+         android:layout_height="40dp"
+-        android:orientation="horizontal"
++        android:layout_marginLeft="16dp"
+         android:layout_marginRight="16dp"
+-        android:layout_marginLeft="16dp">
++        android:orientation="horizontal">
++
+         <TextView
+             android:layout_width="0dp"
+             android:layout_height="match_parent"
+@@ -271,63 +305,69 @@
+             android:gravity="center_vertical"
+             android:text="标签"
+             android:textColor="@color/text_color"
+-            android:textSize="14sp"/>
++            android:textSize="14sp" />
++
+         <RadioGroup
+             android:id="@+id/radioGroup1"
+             android:layout_width="0dp"
+             android:layout_height="match_parent"
+             android:layout_weight="3"
+-            android:orientation="horizontal"
+-            android:gravity="center_vertical">
++            android:gravity="center_vertical"
++            android:orientation="horizontal">
++
+             <RadioButton
+                 android:id="@+id/home_text"
+                 android:layout_width="50dp"
+                 android:layout_height="30dp"
++                android:background="@drawable/radio_background"
+                 android:button="@null"
+                 android:clickable="true"
+                 android:drawablePadding="6dp"
++                android:checked="true"
+                 android:gravity="center"
+                 android:text="家"
+                 android:textColor="@drawable/radio_textcolor"
+-                android:textSize="12sp"
+-                android:background="@drawable/radio_background" />
++                android:textSize="12sp" />
++
+             <RadioButton
+                 android:id="@+id/company_text"
+                 android:layout_width="50dp"
+                 android:layout_height="30dp"
++                android:layout_marginLeft="16dp"
++                android:layout_marginRight="16dp"
++                android:background="@drawable/radio_background"
+                 android:button="@null"
+                 android:clickable="true"
+                 android:drawablePadding="6dp"
+                 android:gravity="center"
+                 android:text="公司"
+                 android:textColor="@drawable/radio_textcolor"
+-                android:textSize="12sp"
+-                android:background="@drawable/radio_background"
+-                android:layout_marginLeft="16dp"
+-                android:layout_marginRight="16dp"/>
++                android:textSize="12sp" />
++
+             <RadioButton
+                 android:id="@+id/school_text"
+                 android:layout_width="50dp"
+                 android:layout_height="30dp"
++                android:background="@drawable/radio_background"
+                 android:button="@null"
+                 android:clickable="true"
+                 android:drawablePadding="6dp"
+                 android:gravity="center"
+                 android:text="学校"
+                 android:textColor="@drawable/radio_textcolor"
+-                android:textSize="12sp"
+-                android:background="@drawable/radio_background" />
++                android:textSize="12sp" />
+         </RadioGroup>
+     </LinearLayout>
++
+     <Button
+         android:id="@+id/ensure_bt"
+         android:layout_width="match_parent"
+         android:layout_height="35dp"
++        android:layout_marginLeft="16dp"
++        android:layout_marginRight="16dp"
++        android:layout_marginTop="30dp"
+         android:background="@drawable/login_corners_bgall"
+         android:text="确定"
+         android:textColor="@color/white"
+-        android:textSize="16sp"
+-        android:layout_marginTop="30dp"
+-        android:layout_marginLeft="16dp"
+-        android:layout_marginRight="16dp"/>
++        android:textSize="16sp" />
+ </LinearLayout>
+Index: map/src/main/res/layout/activity_map.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- map/src/main/res/layout/activity_map.xml	(revision )
++++ map/src/main/res/layout/activity_map.xml	(revision )
+@@ -0,0 +1,42 @@
++<?xml version="1.0" encoding="utf-8"?>
++<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:tools="http://schemas.android.com/tools"
++    android:layout_width="match_parent"
++    android:layout_height="match_parent"
++    xmlns:app="http://schemas.android.com/apk/res-auto"
++    tools:context="com.slowlife.map.MapActivity">
++
++    <android.support.v7.widget.CardView
++        android:layout_width="match_parent"
++        android:layout_height="wrap_content"
++        android:layout_margin="10dp">
++
++        <TextView
++            android:id="@+id/search"
++            android:layout_width="match_parent"
++            android:layout_height="wrap_content"
++            android:background="#fff"
++            android:hint="输入查询地址"
++            android:onClick="onClick"
++            android:maxLines="1"
++            android:padding="8dp"
++            android:textSize="14sp" />
++    </android.support.v7.widget.CardView>
++
++
++    <com.amap.api.maps2d.MapView
++        android:id="@+id/mapView"
++        android:layout_width="match_parent"
++        android:layout_height="match_parent" />
++
++    <android.support.design.widget.FloatingActionButton
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:layout_alignParentBottom="true"
++        app:fabSize="mini"
++        android:foreground="#f2f2f2"
++        android:layout_alignParentRight="true"
++        android:id="@+id/fab"
++        android:layout_marginBottom="110dp"
++        android:layout_marginRight="7dp" />
++</RelativeLayout>
+Index: map/src/main/AndroidManifest.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- map/src/main/AndroidManifest.xml	(date 1493888251000)
++++ map/src/main/AndroidManifest.xml	(revision )
+@@ -1,48 +1,51 @@
++<?xml version="1.0" encoding="utf-8"?>
+ <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+     package="com.slowlife.map">
+ 
+-
+-    <!--允许程序打开网络套接字-->
++    <!-- 允许程序打开网络套接字 -->
+     <uses-permission android:name="android.permission.INTERNET" />
+-    <!--允许程序设置内置sd卡的写权限-->
++    <!-- 允许程序设置内置sd卡的写权限 -->
+     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+-    <!--允许程序获取网络状态-->
++    <!-- 允许程序获取网络状态 -->
+     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+-    <!--允许程序访问WiFi网络信息-->
++    <!-- 允许程序访问WiFi网络信息 -->
+     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+-    <!--允许程序读写手机状态和身份-->
++    <!-- 允许程序读写手机状态和身份 -->
+     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+-    <!--允许程序访问CellID或WiFi热点来获取粗略的位置-->
++    <!-- 允许程序访问CellID或WiFi热点来获取粗略的位置 -->
+     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+-    <!--用于进行网络定位-->
++    <!-- 用于进行网络定位 -->
+-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"></uses-permission>
++    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+-    <!--用于访问GPS定位-->
++    <!-- 用于访问GPS定位 -->
+-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"></uses-permission>
++    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+-    <!--用于获取运营商信息，用于支持提供运营商信息相关的接口-->
++    <!-- 用于获取运营商信息，用于支持提供运营商信息相关的接口 -->
+-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
++    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+-    <!--用于访问wifi网络信息，wifi信息会用于进行网络定位-->
++    <!-- 用于访问wifi网络信息，wifi信息会用于进行网络定位 -->
+-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"></uses-permission>
++    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+-    <!--用于获取wifi的获取权限，wifi信息会用来进行网络定位-->
++    <!-- 用于获取wifi的获取权限，wifi信息会用来进行网络定位 -->
+-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"></uses-permission>
++    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+-    <!--用于访问网络，网络定位需要上网-->
++    <!-- 用于访问网络，网络定位需要上网 -->
+-    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
++    <uses-permission android:name="android.permission.INTERNET" />
+-    <!--用于读取手机当前的状态-->
++    <!-- 用于读取手机当前的状态 -->
+-    <uses-permission android:name="android.permission.READ_PHONE_STATE"></uses-permission>
++    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+-    <!--用于写入缓存数据到扩展存储卡-->
++    <!-- 用于写入缓存数据到扩展存储卡 -->
+-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
++    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+-    <!--用于申请调用A-GPS模块-->
++    <!-- 用于申请调用A-GPS模块 -->
+-    <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS"></uses-permission>
++    <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" />
+-    <!--用于申请获取蓝牙信息进行室内定位-->
++    <!-- 用于申请获取蓝牙信息进行室内定位 -->
+-    <uses-permission android:name="android.permission.BLUETOOTH"></uses-permission>
+-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"></uses-permission>
++    <uses-permission android:name="android.permission.BLUETOOTH" />
++    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+ 
+     <application>
+-
+-
+         <meta-data
+             android:name="com.amap.api.v2.apikey"
+             android:value="6ad581accb4a67a03e0f3ecc0e752074" />
++
+         <service android:name="com.amap.api.location.APSService" />
++
++        <activity
++            android:name=".MapActivity" />
++        <activity android:name=".SearchAddrActivity" />
+     </application>
+ 
+-</manifest>
++</manifest>
+\ No newline at end of file
+Index: app/src/main/java/com/android/slowlife/activity/ChangePhoneActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/android/slowlife/activity/ChangePhoneActivity.java	(date 1493888251000)
++++ app/src/main/java/com/android/slowlife/activity/ChangePhoneActivity.java	(revision )
+@@ -113,7 +113,7 @@
+             smsJson.put("code", code);
+             JSONObject userJson = new JSONObject();
+             userJson.put("phone", newPhone);
+-            userJson.put("password", MD5.md5(pwd));
++            userJson.put("password", MD5.md5Pwd(pwd));
+             userJson.put("id", info.getId());
+ 
+             RequestBody requestBody = new MultipartBody.Builder()
+Index: map/src/main/res/layout/item_search_poi.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- map/src/main/res/layout/item_search_poi.xml	(revision )
++++ map/src/main/res/layout/item_search_poi.xml	(revision )
+@@ -0,0 +1,20 @@
++<?xml version="1.0" encoding="utf-8"?>
++<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    android:layout_width="match_parent"
++    android:layout_height="wrap_content"
++    android:orientation="vertical"
++    android:padding="8dp">
++
++    <TextView
++        android:id="@+id/addr"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:ellipsize="end"
++        android:maxLines="1" />
++
++    <TextView
++        android:id="@+id/city"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:textSize="12sp" />
++</LinearLayout>
+\ No newline at end of file
+Index: app/src/main/res/values/styles.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/values/styles.xml	(date 1493888251000)
++++ app/src/main/res/values/styles.xml	(revision )
+@@ -4,7 +4,7 @@
+     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+         <!-- Customize your theme here. -->
+         <item name="colorPrimary">@color/colorPrimary</item>
+-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
++        <item name="colorPrimaryDark">@color/red</item>
+         <item name="colorAccent">@color/colorAccent</item>
+     </style>
+ 

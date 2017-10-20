@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical"
+    android:fitsSystemWindows="true">
+
+    <RelativeLayout
+        android:id="@+id/top_layout"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:background="@color/red">
+
+        <RelativeLayout
+            android:id="@+id/back_rl"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:paddingLeft="16dp">
+
+            <ImageView
+                android:layout_width="12dp"
+                android:layout_height="18dp"
+                android:layout_centerVertical="true"
+                android:background="@drawable/back" />
+        </RelativeLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="商品评价"
+            android:textColor="@color/white"
+            android:textSize="16sp" />
+    </RelativeLayout>
+    <!-- 评价优先标签汇总 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="16dp">
+
+        <com.android.slowlife.view.CustomRadioGroup
+            android:id="@+id/customRadioGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+    <ListView
+        android:id="@+id/listview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:cacheColorHint="#00000000"
+        android:divider="#e6e6e6"
+        android:dividerHeight="1dp"
+        android:drawSelectorOnTop="true"
+        android:scrollbars="none"
+        android:layout_marginTop="20dp">
+    </ListView>
+</LinearLayout>

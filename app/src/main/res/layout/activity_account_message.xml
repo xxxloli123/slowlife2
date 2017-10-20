@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:fitsSystemWindows="true">
+
+    <RelativeLayout
+        android:id="@+id/top_layout"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:background="@color/red">
+
+        <RelativeLayout
+            android:id="@+id/back_rl"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:paddingLeft="16dp">
+
+            <ImageView
+                android:layout_width="12dp"
+                android:layout_height="18dp"
+                android:layout_centerVertical="true"
+                android:background="@drawable/back" />
+        </RelativeLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="账户信息"
+            android:textColor="@color/white"
+            android:textSize="16sp" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="5dp"
+        android:orientation="vertical"
+        android:layout_below="@+id/top_layout">
+
+        <EditText
+            android:id="@+id/name"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:background="@null"
+            android:hint="用户名"
+            android:textColor="@color/black"
+            android:textColorHint="#919191"
+            android:textSize="14sp"
+            android:drawableBottom="@drawable/line" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="#a0a0a0"
+            android:text="用户名只能修改一次（5-24个字符）"
+            android:layout_marginTop="10dp"/>
+        <Button
+            android:id="@+id/ensure_bt"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/login1_corners_bgall"
+            android:text="确认修改"
+            android:textColor="@color/white"
+            android:textSize="16sp" />
+    </LinearLayout>
+</RelativeLayout>

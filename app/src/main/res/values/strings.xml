@@ -1,0 +1,50 @@
+<resources>
+    <string name="app_name">惠递</string>
+
+
+    <string name="smoothlistview_header_hint_normal">下拉刷新</string>
+    <string name="smoothlistview_header_hint_ready">松开刷新数据</string>
+    <string name="smoothlistview_header_hint_loading">正在加载...</string>
+    <string name="smoothlistview_header_last_time">上次更新时间：</string>
+    <string name="smoothlistview_footer_hint_normal">查看更多</string>
+    <string name="smoothlistview_footer_hint_ready">松开载入更多</string>
+
+    <string name="msg_camera_framework_bug">Sorry, the Android camera encountered a problem. You may need to restart the device.</string>
+    <string name="button_ok">OK</string>
+    <string name="viewfinderview_status_text1">将二维码/条码放入取景框内</string>
+    <string name="viewfinderview_status_text2">即可自动扫描</string>
+    <string name="commodity_introduce">Rubatime 韩国潮女大学生简约个性韩版潮流创意手表情侣一对时尚原宿复古男韩国手表女学生韩版简约时尚潮流女士石英气质简约优雅手镯手链表</string>
+    <string name="balance_problem_title1">Q1:使用余额的条件</string>
+    <string name="balance_problem_details1">为了保护账户安全，使用余额前必须先绑定手机号。</string>
+    <string name="balance_problem_title2">Q2:余额可以怎么用？</string>
+    <string name="balance_problem_details2">余额可以在掌升活平台上提现，当余额大于等于待支付金额时可以在支持在线支付的商家中进行消费。</string>
+    <string name="balance_problem_title3">Q3:我要如何提现？</string>
+    <string name="balance_problem_details3">为了保护账户和资金安全，您在提现前需要输入真实姓名和用该姓名开通的银行卡号、选择开户行，并验证已绑定掌升活账号的手机号。每日只能提现一次，每次限额50元。若提现金额超过50元，点击【提现】时系统会提示您已超额，请你修改提现金额。</string>
+    <string name="balance_problem_title4">Q4:为什么会提现失败？</string>
+    <string name="balance_problem_details4">可能原因有：您的姓名、开户行、银行卡号等信息不匹配；您当日的提现次数和金额超过限制；您的账户存在异常，被拦截了。</string>
+    <string name="active_rule1">1、红包/验证码/预约劵仅限购买meilele.com官网使用，不能兑换成现金。</string>
+    <string name="active_rule2">2、每个订单只能使用一个红包/验证码/预约劵。</string>
+    <string name="active_rule3">3、在有效使用时间内使用，过期未使用作废。</string>
+    <string name="active_rule4">4、不找零、不折现，限一次性使用完（不能抵扣快递、物流或服务费），如使用后发生退款，红包/验证码/预约劵金额不作为退款项。</string>
+    <string name="active_rule5">5、订单内收货人手机需与获取到红包/验证码/预约劵时填写的手机号相同，同时满足对应红包/验证码/预约劵最小订单金额即可使用（体验馆特卖、团购、拍卖、秒杀产品及第三方配送产品除外），每个订单限用1张，不能与其他红包、验证码、预约劵等代金券一起使用。</string>
+    <string name="active_rule6">6、红包/验证码/预约劵支付部分不开发票。</string>
+    <string name="integral_problem_title1">Q1:怎么获得积分？</string>
+    <string name="integral_problem_details1">为了保护账户安全，使用余额前必须先绑定手机号。</string>
+    <string name="integral_problem_title2">Q1:积分用来做什么？</string>
+    <string name="integral_problem_details2">余额可以在掌升活平台上提现，当余额大于等于待支付金额时可以在支持在线支付的商家中进行消费。</string>
+    <string name="integral_problem_title3">Q1:积分兑换了红包，为什么红包里没有显示，该怎么办</string>
+    <string name="integral_problem_details3">余额可以在掌升活平台上提现，当余额大于等于待支付金额时可以在支持在线支付的商家中进行消费。</string>
+    <string name="flow_title1">1、用户确认符合活动条件后，点击【马上兑换】，并填写配送信息；</string>
+    <string name="flow_title2">2、确认收货信息无误，提交兑换。</string>
+    <string name="announcements_title1">1、每位用户仅可兑换一次；</string>
+    <string name="announcements_title2">2、请提供正确并可正常通信的手机号，提供错误信息导致损失将由用户承担；</string>
+    <string name="announcements_title3">3、产品运费由掌升活承担（包邮）；</string>
+    <string name="announcements_title4">4、将在5-15个工作日内邮寄礼品。</string>
+    <string name="phone_state">银行预留的手机号码是办理该银行卡时所填写的手机号码，没有预留、手机号忘记或者已停用，请联系银行客户更新处理，大陆手机号为11位数字，非大陆手机号为“国家代码-手机号码”形式</string>
+
+    <string name="rule">1．寄件人不得交寄国家禁止寄递的物品如易燃物、易爆物、腐蚀性物品、放射性物品、毒性物品、麻醉物品、精神药品、非 法出版物、管制刀具等《禁寄物品指导录》所列的禁寄品，不得隐瞒交寄快件的内件情况，不能确定的物品应当依照相关规定 出示有效证明。航空限寄物品按有关规定使用陆运交寄。寄件人匿报、隐蔽包装交寄禁寄和航空限寄物品导致快递服务组织或 第三人物品损失及人身伤害的，寄件人应当向快递服务组织或第三人承担民事赔偿责任。\n
+2．延误件、遗失件、破损件有客服部联系沟通上游客户，按相关服务协议赔偿。\n
+3．快递公司的快递员出现任何问题由快递公司全权负责，本公司的快递员出现任何问题由本公司全权负责。\n
+4．惠递平台不接受电话接单，如电话接单出现任何问题与本平台无关。\n
+5．惠递APP使用现金支付不能享受红包优惠。</string>
+</resources>

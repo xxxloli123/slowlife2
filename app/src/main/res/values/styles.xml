@@ -1,0 +1,71 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/red</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="translucent" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowBackground">@color/translucent_background</item>
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="fiveRatingBar" parent="@android:style/Widget.RatingBar">
+        <item name="android:progressDrawable">@drawable/five_rating_bar</item>
+        <item name="android:minHeight">15dp</item>
+        <item name="android:maxHeight">15dp</item>
+    </style>
+
+    <style name="Base.Widget.Design.TabLayout1" parent="android:Widget">
+        <item name="tabBackground">@drawable/tab_background</item>
+        <item name="tabIndicatorColor">#ff00ff</item>
+        <item name="tabIndicatorHeight">0dp</item>
+    </style>
+
+    <style name="cartdialog">
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:colorBackgroundCacheHint">@null</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowActionModeOverlay">true</item>
+    </style>
+
+    <style name="FullScreenDialog" parent="android:style/Theme.Dialog">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowIsTranslucent">false</item>
+        <item name="android:background">@android:color/white</item>
+        <item name="android:windowBackground">@null</item>
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
+
+    <style name="MyCheckBox" parent="@android:style/Widget.CompoundButton.CheckBox">
+        <item name="android:button">@drawable/radio_selecter</item>
+        <item name="android:paddingLeft">6dip</item>
+        <item name="android:maxHeight">10dip</item>
+    </style>
+
+    <style name="transparentText" parent="TextAppearance.AppCompat.Small">
+        <item name="android:textColor">#00000000</item>
+    </style>
+
+    <style name="RadioStyleDef">
+        <item name="android:padding">5dp</item>
+    </style>
+</resources>

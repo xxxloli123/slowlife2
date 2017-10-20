@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical"
+    tools:context="com.android.slowlife.activity.SearchOrderActivity">
+
+    <RelativeLayout
+        android:id="@+id/top_layout"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:background="@color/red">
+
+        <RelativeLayout
+            android:id="@+id/back_rl"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:onClick="onClick"
+            android:paddingLeft="16dp">
+
+            <ImageView
+                android:layout_width="12dp"
+                android:layout_height="18dp"
+                android:layout_centerVertical="true"
+                android:background="@drawable/back" />
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/red">
+
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="70dp"
+            android:layout_centerInParent="true"
+            android:src="@drawable/huidi_search" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/search_order_bg"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <android.support.v7.widget.AppCompatSpinner
+            android:id="@+id/spinner"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:background="@drawable/search_order_edit_bg"
+            android:spinnerMode="dialog" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/search_order_edit_bg"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+
+            <EditText
+                android:id="@+id/order_num"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@null"
+                android:hint="请输入物流单号"
+                android:imeActionLabel="查询"
+                android:imeOptions="actionSearch"
+                android:inputType="text"
+                android:maxLines="1"
+                android:padding="6dp"
+                android:textSize="14sp" />
+
+            <ImageView
+                android:id="@+id/sao"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:onClick="onClick"
+                android:src="@drawable/sao1" />
+
+            <TextView
+                android:id="@+id/search"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="4dp"
+                android:background="@drawable/search_btn_selector"
+                android:gravity="center"
+                android:onClick="onClick"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:text="查询"
+                android:textColor="@color/white" />
+        </LinearLayout>
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/nothing"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <ImageView
+            android:layout_width="120dp"
+            android:layout_height="180dp"
+            android:src="@drawable/nothing" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:text="无内容真可怕\n你试试查个快递我就有了！" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TableLayout
+            android:id="@+id/tableLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </ScrollView>
+</LinearLayout>

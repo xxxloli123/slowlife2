@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RadioButton xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/radio"
+    android:layout_width="75dp"
+    android:layout_height="wrap_content"
+    android:background="@drawable/radio_background"
+    android:button="@null"
+    android:checked="false"
+    android:clickable="false"
+    android:drawablePadding="6dp"
+    android:focusable="false"
+    android:gravity="center"
+    android:padding="8dp"
+    android:text="中通快递"
+    android:textColor="@drawable/radio_textcolor"
+    android:textSize="12sp" />

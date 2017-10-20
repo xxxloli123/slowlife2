@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.android.slowlife.view.CheckLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    focusable="false"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/item_order_selector"
+    android:clickable="false"
+    android:focusable="false"
+    android:focusableInTouchMode="false"
+    android:orientation="horizontal"
+    android:padding="10dp">
+
+    <FrameLayout
+        android:id="@+id/checkbox_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:padding="6dp">
+
+        <CheckBox
+            android:id="@+id/checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:button="@drawable/item_order_checkbox_selector"
+            android:clickable="false"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:gravity="start" />
+
+    </FrameLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RelativeLayout
+            android:id="@+id/fjaoiwejfowai"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/item_logo"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_centerVertical="true"
+                android:src="@drawable/item_logo" />
+
+            <TextView
+                android:id="@+id/name_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_toLeftOf="@+id/order_state"
+                android:layout_toRightOf="@+id/item_logo"
+                android:maxLines="1"
+                android:textColor="@color/text_color"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/order_state"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:text="待付款"
+                android:textColor="#ff8040" />
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/item_order_addr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/fjaoiwejfowai"
+            android:layout_marginBottom="4dp"
+            android:layout_marginTop="4dp"
+            android:layout_toLeftOf="@+id/item_order_price"
+            android:ellipsize="end"
+            android:maxLines="1" />
+
+        <TextView
+            android:id="@+id/item_order_weight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/item_order_addr"
+            android:layout_toLeftOf="@+id/item_order_price"
+            android:maxLines="1"
+            android:textColor="@android:color/black"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/item_order_time"
+            android:layout_width="wrap_content"
+            android:textSize="12sp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/item_order_weight"
+            android:layout_toLeftOf="@+id/item_order_price"
+            android:maxLines="1" />
+
+
+        <TextView
+            android:id="@+id/item_order_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="8dp"
+            android:background="@drawable/tel_selector"
+            android:padding="8dp"
+            android:textColor="@color/red"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+    </RelativeLayout>
+
+</com.android.slowlife.view.CheckLinearLayout>

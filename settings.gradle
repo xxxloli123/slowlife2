@@ -1,0 +1,1 @@
+include ':app', ':util', ':xgpush', ':pay', ':interfaceconfig', ':map', ':share&sign', ':zxing', ':mzbanner'

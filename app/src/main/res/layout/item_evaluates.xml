@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    xmlns:lxhRatingBar="http://schemas.android.com/apk/res-auto">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_total_score"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="3dp"
+                android:text="4.8"
+                android:textColor="@color/red"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="3dp"
+                android:text="综合评分"
+                android:textColor="@color/black"
+                android:textSize="11sp" />
+
+            <TextView
+                android:id="@+id/tv_total_percent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="3dp"
+                android:text="高于周边商家94.9%"
+                android:textColor="@color/black"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="3dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="服务态度"
+                    android:textColor="@color/black"
+                    android:textSize="12sp" />
+
+                <com.android.slowlife.view.RatingBar
+                    android:id="@+id/rate_service_attitude"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="10dp"
+                    lxhRatingBar:canEdit="false"
+                    lxhRatingBar:countSelected="3"
+                    lxhRatingBar:dividerWidth="1dp"
+                    lxhRatingBar:starCount="5"
+                    lxhRatingBar:stateResId="@drawable/five_rating_bar2"
+                    lxhRatingBar:widthAndHeight="10dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="3dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="商品评价"
+                    android:textColor="@color/black"
+                    android:textSize="12sp" />
+
+                <com.android.slowlife.view.RatingBar
+                    android:id="@+id/rate_good_score"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="10dp"
+                    lxhRatingBar:canEdit="false"
+                    lxhRatingBar:countSelected="3"
+                    lxhRatingBar:dividerWidth="1dp"
+                    lxhRatingBar:starCount="5"
+                    lxhRatingBar:stateResId="@drawable/five_rating_bar2"
+                    lxhRatingBar:widthAndHeight="10dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="3dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="送达时间"
+                    android:textColor="@color/black"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:text="28分钟送达"
+                    android:textColor="@color/black"
+                    android:textSize="11sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+    <!-- 评价优先标签汇总 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <com.android.slowlife.view.CustomRadioGroup
+            android:id="@+id/customRadioGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp" />
+    </LinearLayout>
+</LinearLayout>

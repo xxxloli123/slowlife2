@@ -1,0 +1,43 @@
+apply plugin: 'com.android.application'
+apply plugin: 'com.jakewharton.butterknife'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion '25.0.0'
+
+    defaultConfig {
+        applicationId "com.android.slowlife"
+        minSdkVersion 16
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
+    }
+    defaultConfig {
+        multiDexEnabled true
+    }
+    buildTypes {
+        release {
+		//dkdk
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    packagingOptions{
+        exclude 'META-INF/NOTICE' // will not include NOTICE file
+        exclude 'META-INF/LICENSE' // will not include LICENSE file
+        exclude 'META-INF/rxjava.properties'
+    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    testCompile 'junit:junit:4.12'
+    compile 'com.android.support:appcompat-v7:25.0.1'
+    compile 'com.android.support:support-v4:25.0.1'
+    compile 'com.android.support:design:25.0.1'
+    compile 'com.ashokvarma.android:bottom-navigation-bar:1.3.1'
+    compile 'com.nineoldandroids:library:2.4.0'
+    compile 'com.jakewharton:butterknife:7.0.0'
+    compile 'com.google.code.gson:gson:2.8.0'
+    compile 'com.squareup.okhttp3:okhttp:3.6.0'
+}

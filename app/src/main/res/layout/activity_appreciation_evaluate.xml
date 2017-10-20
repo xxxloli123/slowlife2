@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:fitsSystemWindows="true">
+    <RelativeLayout
+        android:id="@+id/top_layout"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:background="@color/red">
+
+        <RelativeLayout
+            android:id="@+id/delete_rl"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:paddingLeft="16dp">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_centerVertical="true"
+                android:background="@drawable/delete2" />
+        </RelativeLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="感谢评价"
+            android:textColor="@color/white"
+            android:textSize="16sp" />
+    </RelativeLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/success"/>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginLeft="10dp">
+            <TextView
+                android:id="@+id/integral_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="评价成功获得234积分"
+                android:textSize="16sp"
+                android:textColor="@color/text_color"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="您的评价将是其他用户勾选前的重要产考！"
+                android:textSize="10sp"
+                android:textColor="@color/hint_text_color"/>
+        </LinearLayout>
+    </LinearLayout>
+    <Button
+        android:id="@+id/finish_bt"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:background="@drawable/login_corners_bgall"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        android:text="评价更多订单，获取1234积分"
+        android:layout_marginTop="10dp"/>
+</LinearLayout>

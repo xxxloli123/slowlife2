@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white"
+    android:fitsSystemWindows="true">
+    <RelativeLayout
+        android:id="@+id/top_layout"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:background="@color/red">
+
+        <RelativeLayout
+            android:id="@+id/back_rl"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:paddingLeft="16dp">
+
+            <ImageView
+                android:layout_width="12dp"
+                android:layout_height="18dp"
+                android:layout_centerVertical="true"
+                android:background="@drawable/back" />
+        </RelativeLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="订单跟踪"
+            android:textColor="@color/white"
+            android:textSize="16sp" />
+    </RelativeLayout>
+    <com.android.slowlife.view.ScheduleView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="10dp">
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_marginLeft="10dp"
+            android:gravity="center_vertical"
+            android:padding="10dp">
+
+            <TextView
+                android:layout_height="50dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text="创建订单" />
+
+            <TextView
+                android:gravity="center_vertical"
+                android:text="" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_marginLeft="10dp"
+            android:gravity="center_vertical"
+            android:padding="10dp">
+
+            <TextView
+                android:layout_height="50dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text="快递员接单" />
+
+            <TextView
+                android:gravity="center_vertical"
+                android:text="" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_marginLeft="10dp"
+            android:gravity="center_vertical"
+            android:padding="10dp">
+
+            <TextView
+                android:layout_height="50dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text="付款" />
+
+            <TextView
+                android:gravity="center_vertical"
+                android:text="" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_marginLeft="10dp"
+            android:gravity="center_vertical"
+            android:padding="10dp">
+
+            <TextView
+                android:layout_height="50dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text="配送中" />
+
+            <TextView
+                android:gravity="center_vertical"
+                android:text="" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_marginLeft="10dp"
+            android:gravity="center_vertical"
+            android:padding="10dp">
+
+            <TextView
+                android:layout_height="50dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text="交易完成订单" />
+
+            <TextView
+                android:gravity="center_vertical"
+                android:text="" />
+        </TableRow>
+    </com.android.slowlife.view.ScheduleView>
+</LinearLayout>

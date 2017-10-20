@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.android.slowlife.view.SlideView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="@color/white">
+
+    <LinearLayout
+        android:id="@+id/slideview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="90dp"
+            android:paddingBottom="10dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="20dp">
+
+            <ImageView
+                android:id="@+id/merchant_head_image"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@drawable/merchant_head" />
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="6dp"
+                android:layout_toRightOf="@+id/merchant_head_image">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/merchant_name_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="王家铺子"
+                        android:textColor="@color/text_color"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/merchant_address_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="（重庆市江北区观音桥融景城）"
+                        android:textColor="@color/text_color"
+                        android:textSize="14sp"
+                        android:ellipsize="end"
+                        android:lines="1"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <com.android.slowlife.view.RatingBar
+                        xmlns:lxhRatingBar="http://schemas.android.com/apk/res-auto"
+                        android:id="@+id/product_ratingBar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        lxhRatingBar:canEdit="true"
+                        lxhRatingBar:countSelected="4"
+                        lxhRatingBar:dividerWidth="1dp"
+                        lxhRatingBar:starCount="5"
+                        lxhRatingBar:stateResId="@drawable/five_rating_bar2"
+                        lxhRatingBar:widthAndHeight="10dp"
+                        android:layout_gravity="center_horizontal" />
+
+                    <TextView
+                        android:id="@+id/merchant_sale_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="4dp"
+                        android:text="月售12345单"
+                        android:textColor="@color/hint1_text_color"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/upto_amount_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="￥20元起送"
+                        android:textColor="@color/hint1_text_color"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="2dp"
+                        android:layout_marginRight="2dp"
+                        android:text="|"
+                        android:textColor="@color/text_color"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/delivery_cost_address"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="配送费￥5"
+                        android:textColor="@color/hint1_text_color"
+                        android:textSize="12sp" />
+                </LinearLayout>
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/distance_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="100米以内"
+                    android:textColor="#909090"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="2dp"
+                    android:layout_marginRight="2dp"
+                    android:text="|"
+                    android:textColor="#909090"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/minute_address"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="38分钟"
+                    android:textColor="#2129d2"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </RelativeLayout>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="70dp"
+        android:layout_height="wrap_content"
+        android:paddingBottom="10dp"
+        android:paddingTop="20dp">
+
+        <TextView
+            android:id="@+id/delete"
+            android:layout_width="70dp"
+            android:layout_height="60dp"
+            android:background="@color/red"
+            android:gravity="center"
+            android:text="删除"
+            android:textColor="@color/white" />
+    </LinearLayout>
+</com.android.slowlife.view.SlideView>

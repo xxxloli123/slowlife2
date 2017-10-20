@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/white_bgall">
+
+    <ImageView
+        android:id="@+id/image"
+        android:layout_width="75dp"
+        android:layout_height="50dp"
+        android:background="@drawable/a6" />
+    <TextView
+        android:id="@+id/text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="户外健身"
+        android:textSize="12sp"
+        android:textColor="@color/white"
+        android:paddingTop="3dp"
+        android:paddingBottom="3dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:background="@drawable/bacgroud1_transparency_bgall"/>
+</RelativeLayout>

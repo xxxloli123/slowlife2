@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/lead_image"
+    tools:context="com.android.slowlife.activity.GuideTrueActivity">
+    <ImageView
+        android:id="@+id/cancel"
+        android:background="@drawable/delete2"
+        android:layout_marginTop="40dp"
+        android:layout_marginLeft="60dp"
+        android:layout_width="30dp"
+        android:layout_height="30dp" />
+</RelativeLayout>

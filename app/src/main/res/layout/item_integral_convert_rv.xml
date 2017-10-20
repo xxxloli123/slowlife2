@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tool="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="vertical">
+    <ImageView
+        android:id="@+id/integral_image"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center_horizontal"
+        android:scaleType="fitXY"
+        android:background="@drawable/convert"/>
+
+    <TextView
+        android:id="@+id/integral_section_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:gravity="center"
+        android:maxLines="1"
+        android:text=""
+        android:textColor="@color/text_color"
+        android:textSize="12sp"
+        tool:text="0元兑换"
+        android:paddingRight="16dp"
+        android:paddingLeft="16dp"/>
+</LinearLayout>

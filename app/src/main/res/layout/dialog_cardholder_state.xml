@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/dialog_bgall"
+        android:paddingBottom="10dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:text="持卡人说明"
+            android:textColor="@color/text_color"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:gravity="center"
+            android:text="为保证账户资金安全，只能绑定认证用户本人的银行卡"
+            android:textColor="@color/text_color"
+            android:textSize="10sp"
+            android:layout_marginTop="10dp"
+            android:paddingRight="10dp"
+            android:paddingLeft="10dp"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/line_color"
+            android:layout_marginTop="10dp"/>
+
+        <Button
+            android:id="@+id/sure_bt"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_weight="1"
+            android:background="@color/white"
+            android:gravity="center"
+            android:text="知道了"
+            android:textColor="@color/red"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+</LinearLayout>

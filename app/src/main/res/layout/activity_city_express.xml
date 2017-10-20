@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/top_layout"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:background="@color/red">
+
+        <RelativeLayout
+            android:id="@+id/back_rl"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:paddingLeft="16dp">
+
+            <ImageView
+                android:layout_width="12dp"
+                android:layout_height="18dp"
+                android:layout_centerVertical="true"
+                android:background="@drawable/back" />
+        </RelativeLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="同城快递"
+            android:textColor="@color/white"
+            android:textSize="16sp" />
+    </RelativeLayout>
+
+    <com.android.slowlife.view.MScrollView1
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/linearLayout4"
+        android:layout_below="@+id/top_layout"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="84dp"
+                android:background="@drawable/banner4"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/rule"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:textColor="@color/red"
+                android:textSize="10sp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="6dp"
+                android:background="@drawable/line" />
+
+            <LinearLayout
+                android:id="@+id/llayout"
+                android:layout_width="match_parent"
+                android:layout_height="0.1dp"
+                android:background="@color/white"
+                android:orientation="vertical"></LinearLayout>
+            <!-- 滑动导航栏 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <com.android.slowlife.view.PagerSlidingTabStrip
+                    android:id="@+id/tabs"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:background="@color/white"
+                    android:textColor="@color/text_color"
+                    android:textSize="14sp"
+                    app:pstsDividerColor="@android:color/transparent"
+                    app:pstsIndicatorColor="@color/red"
+                    app:pstsIndicatorHeight="1dp"
+                    app:pstsScaleZoomMax="0"
+                    app:pstsShouldExpand="true"
+                    app:pstsSmoothScrollWhenClickTab="false"
+                    app:pstsTabPaddingLeftRight="0dp"
+                    app:pstsTextSelectedColor="@color/text_color"
+                    app:pstsUnderlineColor="@android:color/transparent" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="10dp"
+                    android:background="@color/line_color" />
+
+                <com.android.slowlife.view.AutoHeightViewPager
+                    android:id="@+id/pager"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/white" />
+            </LinearLayout>
+        </LinearLayout>
+    </com.android.slowlife.view.MScrollView1>
+
+    <com.android.slowlife.view.PagerSlidingTabStrip
+        android:id="@+id/tabs1"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_below="@+id/top_layout"
+        android:background="@color/white"
+        android:textColor="@color/text_color"
+        android:textSize="14sp"
+        android:visibility="gone"
+        app:pstsDividerColor="@android:color/transparent"
+        app:pstsIndicatorColor="@color/red"
+        app:pstsIndicatorHeight="1dp"
+        app:pstsScaleZoomMax="0"
+        app:pstsShouldExpand="true"
+        app:pstsSmoothScrollWhenClickTab="false"
+        app:pstsTabPaddingLeftRight="0dp"
+        app:pstsTextSelectedColor="@color/text_color"
+        app:pstsUnderlineColor="@android:color/transparent" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout4"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_above="@+id/sure_bt_rl"
+        android:background="@color/white"
+        android:orientation="horizontal"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
+
+        <CheckBox
+            android:id="@+id/checkbox"
+            style="@style/MyCheckBox"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:checked="true"
+            android:gravity="center"
+            android:text="我已阅读并同意"
+            android:textColor="@color/hint_text_color"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/agreement"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onClick"
+            android:paddingBottom="4dp"
+            android:text="《服务协议》"
+            android:textColor="@color/red"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/sure_bt_rl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_weight="1.5"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/price2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="预估金额:0元"
+            android:textColor="@color/text_color"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/bredPacket"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="(当前红包有0个)"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/sure_bt"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:background="@drawable/login_corners_bgall"
+            android:gravity="center"
+            android:text="我要寄件"
+            android:textColor="@color/white"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/appointment"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="52dp"
+        android:clickable="true"
+        android:src="@drawable/appointment"
+        android:visibility="gone" />
+</RelativeLayout>

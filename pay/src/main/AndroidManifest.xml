@@ -1,0 +1,176 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+
+    package="com.slowlife.pay">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <!-- SDK2.1新增获取用户位置信息 -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
+    <uses-permission android:name="android.permission.GET_TASKS" />
+
+    <application tools:ignore="OldTargetApi">
+
+        <!-- alipay sdk begin -->
+
+        <activity
+            android:name="com.alipay.sdk.app.H5PayActivity"
+            android:configChanges="orientation|keyboardHidden|navigation|screenSize"
+            android:exported="false"
+            android:screenOrientation="behind"
+            android:windowSoftInputMode="adjustResize|stateHidden"></activity>
+        <activity
+            android:name="com.alipay.sdk.app.H5AuthActivity"
+            android:configChanges="orientation|keyboardHidden|navigation"
+            android:exported="false"
+            android:screenOrientation="behind"
+            android:windowSoftInputMode="adjustResize|stateHidden"></activity>
+        <activity
+            android:name="com.alipay.sdk.auth.AuthActivity"
+            android:configChanges="orientation|keyboardHidden|navigation"
+            android:exported="false"
+            android:screenOrientation="behind" />
+
+        <!-- alipay sdk end -->
+
+
+        <!--  微信  -->
+        <receiver
+            android:name="com.tencent.sample.AppRegister"
+            android:permission="com.tencent.mm.plugin.permission.SEND">
+            <intent-filter>
+                <action android:name="com.tencent.mm.plugin.openapi.Intent.ACTION_REFRESH_WXAPP" />
+            </intent-filter>
+        </receiver>
+        <!-- 应用吧 -->
+        <activity
+            android:name="com.tencent.open.yyb.AppbarActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <activity android:name="com.tencent.connect.avatar.ImageActivity" />
+        <activity
+            android:name="com.tencent.connect.common.AssistActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="behind"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <activity
+            android:name=".ReturnActivity"
+            android:label="@string/title_activity_return"></activity>
+        <activity
+            android:name="com.tencent.tauth.AuthActivity"
+            android:launchMode="singleTask"
+            android:noHistory="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="tencent222222" />
+                <!-- 100380359 100381104 222222 -->
+            </intent-filter>
+        </activity>
+
+        <!-- zivon add start -->
+        <activity
+            android:name=".activitys.AccountInfoActivity"
+            android:configChanges="orientation|keyboardHidden" />
+        <activity
+            android:name=".activitys.QQFavoritesActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+        <activity
+            android:name=".activitys.QQDatalineActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+        <activity
+            android:name=".activitys.QQTroopBarActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+        <activity
+            android:name=".activitys.QQShareActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+        <activity
+            android:name=".activitys.QZoneShareActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+        <activity
+            android:name=".activitys.QzonePicturesActivity"
+            android:configChanges="orientation|keyboardHidden" />
+        <!-- zivon add end -->
+
+
+        <!-- stev add start -->
+
+        <activity
+            android:name=".activitys.WPAActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+        <activity
+            android:name=".activitys.OtherApiActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+        <activity
+            android:name=".activitys.TQQInfoActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+        <activity
+            android:name=".activitys.SocialApiActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+        <activity
+            android:name=".activitys.SocialAppbarActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+        <activity
+            android:name=".activitys.AvatarActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+
+        <activity
+            android:name=".activitys.QQGroupActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+        <activity
+            android:name=".activitys.GameLogicActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+        <!-- stev add end -->
+
+        <activity
+            android:name=".activitys.SharePrizeActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+
+
+        <activity
+            android:name="com.android.slowlife.wxapi.WXPayEntryActivity"
+            android:exported="true" />
+
+
+        <activity android:name="com.android.slowlife.SendToWXActivity" />
+        <activity android:name="com.android.slowlife.ScanQRCodeLoginActivity" />
+    </application>
+
+</manifest>

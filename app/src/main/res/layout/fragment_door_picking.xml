@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/delivery_address_rl"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
+
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="19dp"
+            android:layout_height="19dp"
+            android:layout_centerVertical="true"
+            android:src="@drawable/origin" />
+
+        <TextView
+            android:id="@+id/delivery_address"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_toLeftOf="@+id/addr_right"
+            android:layout_toRightOf="@+id/image"
+            android:ellipsize="end"
+            android:lines="1"
+            android:maxLines="2"
+            android:text="请选择发货地址 (必填)"
+            android:textColor="@color/hint_text_color"
+            android:textSize="12sp" />
+
+        <ImageView
+            android:id="@+id/addr_right"
+            android:layout_width="8dp"
+            android:layout_height="12dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/down" />
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:background="@drawable/line" />
+
+    <RelativeLayout
+        android:id="@+id/select_area_rl"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
+
+        <ImageView
+            android:id="@+id/image1"
+            android:layout_width="16dp"
+            android:layout_height="19dp"
+            android:layout_centerVertical="true"
+            android:background="@drawable/destination" />
+
+        <TextView
+            android:id="@+id/select_area"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@+id/image1"
+            android:ellipsize="end"
+            android:lines="1"
+            android:text="选择区域 (非必填)"
+            android:textColor="@color/hint_text_color"
+            android:textSize="12sp" />
+
+        <ImageView
+            android:layout_width="8dp"
+            android:layout_height="12dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/down" />
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginLeft="42dp"
+        android:layout_marginRight="16dp"
+        android:background="@drawable/line" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginLeft="42dp"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/detailed_address"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="3"
+            android:background="@null"
+            android:gravity="center_vertical"
+            android:hint="请填写详细地址 (非必填)"
+            android:imeOptions="actionNext"
+            android:inputType="text"
+            android:maxLines="1"
+            android:textColor="@color/text_color"
+            android:textColorHint="@color/hint_text_color"
+            android:textSize="12sp" />
+
+        <RelativeLayout
+            android:id="@+id/voice_layout"
+            android:layout_width="60dp"
+            android:layout_height="match_parent"
+            android:paddingRight="16dp"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/voice" />
+        </RelativeLayout>
+    </LinearLayout>
+
+    <!--<View-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="1dp"-->
+        <!--android:layout_marginLeft="16dp"-->
+        <!--android:layout_marginRight="16dp"-->
+        <!--android:background="@drawable/line" />-->
+
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginLeft="42dp"
+        android:layout_marginRight="16dp"
+        android:background="@drawable/line" />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="17dp"
+            android:layout_height="17dp"
+            android:layout_centerVertical="true"
+            android:background="@drawable/phone6" />
+
+        <EditText
+            android:id="@+id/consignee_phone"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="10dp"
+            android:layout_weight="1"
+            android:background="@null"
+            android:hint="请填写收货人号码 (非必填)"
+            android:imeOptions="actionDone"
+            android:inputType="phone"
+            android:maxLength="15"
+            android:maxLines="1"
+            android:textColor="@color/hint_text_color"
+            android:textSize="12sp" />
+
+        <ImageView
+            android:id="@+id/video"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="8dp"
+            android:src="@drawable/voice"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/cargo_weight_rl"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:background="@color/line_color"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
+
+        <ImageView
+            android:id="@+id/image2"
+            android:layout_width="17dp"
+            android:layout_height="17dp"
+            android:layout_centerVertical="true"
+            android:background="@drawable/mode_payment" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@+id/image2"
+            android:ellipsize="end"
+            android:lines="1"
+            android:text="包裹估计重量"
+            android:textColor="@color/text_color"
+            android:textSize="12sp" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:id="@+id/minus"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:background="@drawable/minus" />
+
+            <TextView
+                android:id="@+id/cargo_weight"
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:gravity="center"
+                android:minWidth="25dp"
+                android:paddingLeft="6dp"
+                android:paddingRight="6dp"
+                android:text="5"
+                android:textColor="@color/text_color"
+                android:textSize="12sp" />
+
+            <ImageView
+                android:id="@+id/add"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:background="@drawable/add3" />
+
+            <TextView
+                android:id="@+id/cargo_unit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="6dp"
+                android:paddingRight="6dp"
+                android:text="kg"
+                android:textColor="@color/text_color"
+                android:textSize="12sp" />
+        </LinearLayout>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/urgent_rl"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp">
+
+        <ImageView
+            android:id="@+id/image3"
+            android:layout_width="19dp"
+            android:layout_height="19dp"
+            android:layout_centerVertical="true"
+            android:background="@drawable/goods" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@+id/image3"
+            android:ellipsize="end"
+            android:lines="1"
+            android:text="我要加急"
+            android:textColor="@color/text_color"
+            android:textSize="12sp" />
+
+        <CheckBox
+            android:id="@+id/checkbox"
+            style="@style/MyCheckBox"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:gravity="center"
+            android:text="加急费3元"
+            android:textColor="@color/hint_text_color"
+            android:textSize="12sp" />
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="6dp"
+        android:background="@drawable/line" />
+
+
+    <TextView
+        android:id="@+id/textview"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:gravity="center_vertical"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:text="同城快递资费执行标准"
+        android:textColor="@color/text_color"
+        android:textSize="12sp" />
+
+    <LinearLayout
+        android:id="@+id/tableLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:background="@drawable/backgroud_light_gray_bgall_storce_0"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3.5"
+                android:gravity="center_vertical"
+                android:paddingLeft="6dp"
+                android:paddingRight="6dp"
+                android:text="区域"
+                android:textColor="@color/text_color"
+                android:textSize="12sp" />
+
+            <View
+                android:layout_width="2px"
+                android:layout_height="30dp"
+                android:background="@color/line_color" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="2"
+                android:gravity="center_vertical"
+                android:paddingLeft="6dp"
+                android:paddingRight="6dp"
+                android:text="5公斤内"
+                android:textColor="@color/text_color"
+                android:textSize="12sp" />
+
+            <View
+                android:layout_width="2px"
+                android:layout_height="30dp"
+                android:background="@color/line_color" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3.5"
+                android:gravity="center_vertical"
+                android:paddingLeft="6dp"
+                android:paddingRight="6dp"
+                android:text="超过5公斤每公斤加价"
+                android:textColor="@color/text_color"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+    </LinearLayout>
+</LinearLayout>

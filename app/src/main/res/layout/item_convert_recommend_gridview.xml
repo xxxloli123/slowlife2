@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/shop_name_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="老坑冰A货翡翠圆口手镯"
+        android:textColor="@color/text_color"
+        android:textSize="11sp"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="8dp">
+        <TextView
+            android:id="@+id/credits_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="3000"
+            android:textColor="@color/red"
+            android:textSize="14sp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="积分"
+            android:textColor="@color/text_color"
+            android:textSize="11sp"/>
+    </LinearLayout>
+    <ImageView
+        android:id="@+id/shop_picture_image"
+        android:layout_width="162dp"
+        android:layout_height="116dp"
+        android:background="@drawable/pictures"/>
+</LinearLayout>

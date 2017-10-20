@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:lxhRatingBar="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:descendantFocusability="blocksDescendants"
+    android:orientation="vertical"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="16dp"
+    android:paddingBottom="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/image_icon"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:src="@drawable/test9" />
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginLeft="5dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:id="@+id/txt_name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="王家铺子"
+                            android:textColor="@color/text_color"
+                            android:textSize="16sp" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:ellipsize="end"
+                            android:singleLine="true"
+                            android:text="（观音桥融景）"
+                            android:textColor="@color/text_color"
+                            android:textSize="16sp" />
+                    </LinearLayout>
+
+                    <RelativeLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:orientation="horizontal">
+
+                        <com.android.slowlife.view.RatingBar
+                            android:id="@+id/product_ratingBar"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            lxhRatingBar:canEdit="true"
+                            lxhRatingBar:countSelected="4"
+                            lxhRatingBar:dividerWidth="1dp"
+                            lxhRatingBar:starCount="5"
+                            lxhRatingBar:stateResId="@drawable/five_rating_bar2"
+                            lxhRatingBar:widthAndHeight="10dp"
+                            android:layout_gravity="center_horizontal"
+                            android:layout_centerVertical="true"/>
+
+                        <TextView
+                            android:id="@+id/score"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="4.6"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="4dp"
+                            android:textColor="@color/red"
+                            android:textSize="12sp"
+                            android:layout_toRightOf="@+id/product_ratingBar"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="5dp"
+                            android:singleLine="true"
+                            android:text="月售1234单"
+                            android:textColor="@color/hint1_text_color"
+                            android:textSize="12sp"
+                            android:layout_toRightOf="@+id/score"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:background="@drawable/backgroud_bgall_orange_3"
+                            android:textSize="10sp"
+                            android:text="货到付款"
+                            android:textColor="@color/orange"
+                            android:padding="4dp"
+                            android:layout_toLeftOf="@+id/store_consumption"/>
+                        <TextView
+                            android:id="@+id/store_consumption"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentRight="true"
+                            android:layout_centerVertical="true"
+                            android:background="@drawable/backgroud_bgall_blue_3"
+                            android:textSize="10sp"
+                            android:text="在店消费"
+                            android:textColor="@color/blue"
+                            android:padding="4dp"
+                            android:layout_marginLeft="4dp"/>
+                    </RelativeLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:singleLine="true"
+                            android:text="￥20起送 |"
+                            android:textColor="@color/hint1_text_color"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="5dp"
+                            android:singleLine="true"
+                            android:text="配送费￥5"
+                            android:textColor="@color/hint1_text_color"
+                            android:textSize="12sp" />
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentBottom="true"
+                            android:layout_alignParentRight="true"
+                            android:orientation="horizontal"
+                            android:gravity="right">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="1.8km |"
+                                android:textColor="@color/hint_text_color"
+                                android:textSize="12sp"
+                                android:layout_marginRight="3dp"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="38分钟"
+                                android:textColor="@color/blue"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </RelativeLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="@color/line_color"
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="16dp"
+                android:layout_marginLeft="6dp"/>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_toLeftOf="@+id/layout_act"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="6dp"
+                        android:drawableLeft="@drawable/test33"
+                        android:drawablePadding="6dp"
+                        android:ellipsize="end"
+                        android:singleLine="true"
+                        android:text="满32减10,满60减30"
+                        android:textColor="@color/hint1_text_color"
+                        android:textSize="10sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="6dp"
+                        android:layout_marginTop="4dp"
+                        android:drawableLeft="@drawable/test34"
+                        android:drawablePadding="6dp"
+                        android:ellipsize="end"
+                        android:singleLine="true"
+                        android:text="满32减10,满60减30"
+                        android:textColor="@color/hint1_text_color"
+                        android:textSize="10sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/layout_act"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginLeft="5dp"
+                    android:drawablePadding="5dp"
+                    android:drawableRight="@drawable/test35"
+                    android:gravity="right"
+                    android:text="4个活动"
+                    android:textColor="@color/hint_text_color"
+                    android:textSize="10sp" />
+            </RelativeLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

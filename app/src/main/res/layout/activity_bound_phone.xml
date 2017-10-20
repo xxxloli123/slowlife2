@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/top_layout"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:background="@color/red">
+
+        <RelativeLayout
+            android:id="@+id/back_rl"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:paddingLeft="16dp">
+
+            <ImageView
+                android:layout_width="12dp"
+                android:layout_height="18dp"
+                android:layout_centerVertical="true"
+                android:background="@drawable/back" />
+        </RelativeLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="绑定手机"
+            android:textColor="@color/white"
+            android:textSize="16sp" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/top_layout"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="5dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/phone"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="4"
+                android:background="@null"
+                android:drawableBottom="@drawable/line"
+                android:hint="请输入手机号"
+                android:imeActionLabel="下一项"
+                android:inputType="phone"
+                android:maxLength="11"
+                android:maxLines="1"
+                android:nextFocusDown="@+id/verification_code"
+                android:textColor="@color/black"
+                android:textColorHint="#919191"
+                android:textSize="14sp" />
+
+            <com.android.slowlife.view.TimeButton
+                android:id="@+id/send_code_text"
+                android:layout_width="0dp"
+                android:layout_height="25dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_weight="2"
+                android:background="@drawable/login1_corners_bgall"
+                android:gravity="center"
+                android:onClick="onClick"
+                android:text="发送验证码"
+                android:textColor="@color/white"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+
+        <EditText
+            android:id="@+id/verification_code"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:background="@null"
+            android:drawableBottom="@drawable/line"
+            android:hint="请输入验证码"
+            android:inputType="numberSigned"
+            android:maxLength="6"
+            android:maxLines="1"
+            android:nextFocusDown="@+id/changPhone_newPhone"
+            android:textColor="@color/black"
+            android:textColorHint="#919191"
+            android:textSize="14sp" />
+
+        <EditText
+            android:id="@+id/changPhone_password"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:background="@null"
+            android:drawableBottom="@drawable/line"
+            android:hint="请输入密码"
+            android:inputType="textPassword"
+            android:maxLength="20"
+            android:maxLines="1"
+            android:textColor="@color/black"
+            android:textColorHint="#919191"
+            android:longClickable="false"
+            android:textSize="14sp" />
+
+        <Button
+            android:id="@+id/ensure_bt"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/login_corners_bgall"
+            android:onClick="onClick"
+            android:text="确认绑定"
+            android:textColor="@color/white"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+</RelativeLayout>
