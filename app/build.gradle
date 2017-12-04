@@ -11,7 +11,7 @@ android {
         }
     }
     compileSdkVersion 25
-    buildToolsVersion '25.0.2'
+    buildToolsVersion '26.0.2'
     defaultConfig {
         applicationId "com.android.slowlife"
         minSdkVersion 17
@@ -37,17 +37,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             debuggable false
             signingConfig signingConfigs.sign
-            applicationVariants.all { variant ->
-                variant.outputs.each { output ->
-                    def outputFile = output.outputFile
-                    if (outputFile != null && outputFile.name.endsWith('.apk')) {
-                        // 输出apk名称为app_v1.0_2015-xx-xx_xxxx.apk
-                        //def fileName = "app_v${defaultConfig.versionName}_${releaseTime()}.apk"
-                        def fileName = "huidi_v${defaultConfig.versionName}.apk"
-                        output.outputFile = new File(outputFile.parent, fileName)
-                    }
-                }
-            }
+
         }
         debug {
             signingConfig signingConfigs.sign
@@ -58,6 +48,7 @@ android {
         exclude 'META-INF/LICENSE' // will not include LICENSE file
         exclude 'META-INF/rxjava.properties'
     }
+
     //渠道Flavors，配置不同风格的app,友盟渠道统计时用到
     productFlavors {
     }

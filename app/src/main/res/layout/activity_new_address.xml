@@ -473,13 +473,33 @@
             android:button="@null" />
     </com.android.slowlife.view.CheckLinearLayout>
 
+    <TextView
+        android:layout_marginTop="8dp"
+        android:textColor="@color/red"
+        android:text="智能识别地址信息"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <EditText
+        android:textSize="13sp"
+        android:padding="6dp"
+        android:gravity="left"
+        android:background="@drawable/line_frame"
+        android:layout_margin="8dp"
+        android:hint="请将您复制的包含地址"
+        android:textColor="@color/text_color"
+        android:id="@+id/discern_et"
+        android:layout_width="match_parent"
+        android:layout_height="66dp" />
+
     <Button
         android:id="@+id/ensure_bt"
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="22dp"
         android:background="@drawable/login_corners_bgall"
         android:text="确定"
         android:textColor="@color/white"

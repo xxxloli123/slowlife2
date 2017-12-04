@@ -25,6 +25,7 @@
     <color name="half_transparent">#8f000000</color>
     <color name="font_black_6">#e0e0e0</color>
     <color name="font_black_5">#bdbdbd</color>
+    <color name="white1">#FAFAFA</color>
 
     <color name="transparent">#00000000</color>
     <color name="translucent_background">#dd000000</color>

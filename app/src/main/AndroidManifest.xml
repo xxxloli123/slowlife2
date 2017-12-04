@@ -36,7 +36,7 @@
             android:name=".MainActivity"
             android:launchMode="singleTop"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="adjustPan"></activity>
+            android:windowSoftInputMode="adjustPan" />
         <activity android:name=".BaseActivity" />
         <activity android:name=".BaseActivity1" />
         <activity
@@ -362,7 +362,6 @@
         <activity android:name=".activity.CashAliActivity" />
         <activity android:name=".activity.BindAliPayActivity" />
         <activity android:name=".activity.ShareDetailActivity" />
-
         <activity
             android:name=".activity.CameraActivity"
             android:clearTaskOnLaunch="true"
@@ -371,12 +370,10 @@
             android:stateNotNeeded="true"
             android:theme="@style/CaptureTheme"
             android:windowSoftInputMode="stateAlwaysHidden" />
-
         <activity
             android:name=".activity.CourierEvaluateActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="adjustPan" />
-
         <activity android:name=".activity.GuideTrueActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -384,7 +381,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.StartAddressActivity"></activity>
+        <activity android:name=".activity.StartAddressActivity" />
+        <activity android:name=".activity.ReceivingInfoActivity"></activity>
     </application>
 
 </manifest>

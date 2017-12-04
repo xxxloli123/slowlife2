@@ -6,6 +6,7 @@ import android.preference.PreferenceActivity;
 import android.text.TextUtils;
 
 
+import com.android.slowlife.objectmodel.UserInfoEntity;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
