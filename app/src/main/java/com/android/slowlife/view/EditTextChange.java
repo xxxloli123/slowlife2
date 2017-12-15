@@ -11,6 +11,7 @@ import android.widget.EditText;
 public final class EditTextChange extends EditText {
 
     private Context mContext;
+    private Context contextl;
 
     public EditTextChange(Context context) {
         super(context);
