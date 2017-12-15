@@ -278,7 +278,7 @@ public class PickupHomeFragment extends BaseFragment implements View.OnClickList
                             dialog.dismiss();
                             RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
                                     .addFormDataPart("ordeStr", params.toString())
-                                    .addFormDataPart("appVersion", "2.0")
+                                    .addFormDataPart("appVersion", "20171214")
                                     .build();
                             Request request = new Request.Builder().post(requestBody)
                                     .url(Config.Url.getUrl(Config.CREATEORDER))

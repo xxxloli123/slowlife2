@@ -266,7 +266,8 @@ public class OutsideExpressActivity extends BaseActivity implements OnAreaSelect
             params.put("endHouseNumber", (endAddress != null) ? endAddress.getHouseNumber() : "");
             params.put("type", "Intercity");
             //商品类型
-            params.put("goodsName", commodityType.getText().toString());
+            if (!commodityType.getText().equals("请选择商品类型"))
+                params.put("goodsName", commodityType.getText().toString());
             new DoneDialog(this).setMessage("确定创建订单吗?\n费用由快递员上门后收取").setListener(
                     new DoneDialog.DialogButtonClickListener() {
                         @Override
@@ -373,14 +374,7 @@ public class OutsideExpressActivity extends BaseActivity implements OnAreaSelect
             case R.id.delivery_address_rl://收货地址
                 break;
             case R.id.minus://减
-                if (endAddress == null) {
-                    Toast.makeText(OutsideExpressActivity.this, "请选择送货区域", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                if (companyList == null) {
-                    Toast.makeText(OutsideExpressActivity.this, "请选择快递公司", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+
                 if (weight > 1) {
                     weight--;
                 }
@@ -388,14 +382,7 @@ public class OutsideExpressActivity extends BaseActivity implements OnAreaSelect
                 imputedPrice();
                 break;
             case R.id.add://加
-                if (endAddress == null) {
-                    Toast.makeText(OutsideExpressActivity.this, "请选择送货区域", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                if (companyList == null) {
-                    Toast.makeText(OutsideExpressActivity.this, "请选择快递公司", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+
                 weight++;
                 cargoWeight.setText(weight + "");
                 imputedPrice();
@@ -836,8 +823,8 @@ public class OutsideExpressActivity extends BaseActivity implements OnAreaSelect
         if (address == null) return;
         if (selectedPosition == -1) return;
         if (isEmpty(selectArea.getText())) return;
+
         if (endAddress == null) {
-            Toast.makeText(OutsideExpressActivity.this, "请选择送货区域", Toast.LENGTH_SHORT).show();
             return;
         }
         if (companyList == null) {
