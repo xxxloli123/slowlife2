@@ -37,6 +37,7 @@ import com.android.slowlife.app.MyApplication;
 import com.android.slowlife.bean.Info;
 import com.android.slowlife.objectmodel.AddressEntity;
 import com.android.slowlife.util.SimpleCallback;
+import com.android.slowlife.view.EditTextChange;
 import com.dialog.LoadDialog;
 import com.google.gson.Gson;
 import com.interfaceconfig.Config;
@@ -46,6 +47,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -63,7 +66,8 @@ import static android.text.TextUtils.isEmpty;
  * TODO 同城快递 => 上门取件
  */
 
-public class DoorPickingFragment extends BaseFragment implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
+public class DoorPickingFragment extends BaseFragment implements View.OnClickListener,
+        CompoundButton.OnCheckedChangeListener {
     @Bind(R.id.delivery_address)
     TextView deliveryAddress;
     @Bind(R.id.delivery_address_rl)
@@ -73,7 +77,7 @@ public class DoorPickingFragment extends BaseFragment implements View.OnClickLis
     @Bind(R.id.select_area_rl)
     RelativeLayout selectAreaRl;
     @Bind(R.id.detailed_address)
-    EditText detailedAddress;
+    EditTextChange detailedAddress;
     @Bind(R.id.voice_layout)
     RelativeLayout voiceLayout;
     @Bind(R.id.consignee_phone)
@@ -106,7 +110,6 @@ public class DoorPickingFragment extends BaseFragment implements View.OnClickLis
     private View sureBt;
     private JSONObject addr;
     private int weight = 5;
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -187,7 +190,7 @@ public class DoorPickingFragment extends BaseFragment implements View.OnClickLis
             case R.id.agreement:    //   服务协议
                 break;
             case R.id.checkbox:
-                if (checkbox.isChecked()){
+                if (checkbox.isChecked()) {
                 }
                 break;
         }
@@ -225,7 +228,7 @@ public class DoorPickingFragment extends BaseFragment implements View.OnClickLis
             params.put("startHouseNumber", address.getHouseNumber());
             params.put("startLng", String.valueOf(address.getLng()));
             params.put("startLat", String.valueOf(address.getLat()));
-            params.put("weight",weight);
+            params.put("weight", weight);
             if (selectedPosition != -1) {
                 JSONObject json = this.json.getJSONArray("tariff").getJSONObject(selectedPosition);
                 params.put("endPro", json.getString("endPro"));
@@ -244,7 +247,7 @@ public class DoorPickingFragment extends BaseFragment implements View.OnClickLis
                 params.put("endPro", address.getPro());
                 params.put("endCity", address.getCity());
                 params.put("endDistrict", address.getDistrict());
-                params.put("endStreet", (addr==null)?"":addr.getString("endStreet"));
+                params.put("endStreet", (addr == null) ? "" : addr.getString("endStreet"));
                 params.put("userChoiceCommpanyId", json.getString("expressCompanyId"));
                 params.put("userChoiceCommpanyName", json.getString("expressCompanyName"));
                 params.put("userChoiceCommpanyCode", "ZSHHD");
@@ -356,7 +359,6 @@ public class DoorPickingFragment extends BaseFragment implements View.OnClickLis
         });
     }
 
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode != Activity.RESULT_OK)
@@ -366,12 +368,11 @@ public class DoorPickingFragment extends BaseFragment implements View.OnClickLis
                 address = data.getParcelableExtra(ReceiptAddressActivity.SELECTED_ADDRESS);
                 if (address != null) {
                     getInfo(address);
-                    Log.e("定位",""+address.getLng()+","+address.getLat());
+                    Log.e("定位", "" + address.getLng() + "," + address.getLat());
                     imputedPrice();
                 }
         }
     }
-
 
     private void init() {
         try {
@@ -432,6 +433,30 @@ public class DoorPickingFragment extends BaseFragment implements View.OnClickLis
 
     }
 
+
+    /**
+     * 查询符合的手机号码
+     *
+     * @param str
+     */
+    private static String checkCellphone(String str) {
+
+        // 将给定的正则表达式编译到模式中
+        Pattern pattern = Pattern.compile("(1[3-9])\\d{9}");
+        // 创建匹配给定输入与此模式的匹配器。
+        Matcher matcher = pattern.matcher(str);
+
+        // 查找字符串中是否有符合的子字符串d
+        while (matcher.find()) {
+            return matcher.group();
+        }
+        return "";
+    }
+
+    @OnClick(R.id.discern_bt)
+    public void onClick() {
+        consigneePhone.setText(checkCellphone(detailedAddress.getText().toString()));
+    }
 
     class Callback extends SimpleCallback {
         Callback(Context context) {
@@ -533,7 +558,7 @@ public class DoorPickingFragment extends BaseFragment implements View.OnClickLis
                     .addFormDataPart("startStreet", address.getStreet())
                     .addFormDataPart("expressCompanyId", areas.getJSONObject(0).getString("expressCompanyId"))
                     .addFormDataPart("endStreet", json.getString("endStreet"))
-                    .addFormDataPart("weight",cargoWeight.getText().toString())
+                    .addFormDataPart("weight", cargoWeight.getText().toString())
                     .addFormDataPart("userId", info.getId())
                     .build();
             Request request = new Request.Builder()

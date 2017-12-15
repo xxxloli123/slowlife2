@@ -73,7 +73,7 @@
             android:layout_toRightOf="@+id/image1"
             android:ellipsize="end"
             android:lines="1"
-            android:text="选择区域 (非必填)"
+            android:text="选择区域 "
             android:textColor="@color/hint_text_color"
             android:textSize="12sp" />
 
@@ -83,6 +83,7 @@
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:background="@drawable/down" />
+
     </RelativeLayout>
 
     <View
@@ -98,14 +99,14 @@
         android:layout_marginLeft="42dp"
         android:orientation="horizontal">
 
-        <EditText
+        <com.android.slowlife.view.EditTextChange
             android:id="@+id/detailed_address"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="3"
             android:background="@null"
             android:gravity="center_vertical"
-            android:hint="请填写详细地址 (非必填)"
+            android:hint="请填写收货人详细地址 (可复制粘贴)"
             android:imeOptions="actionNext"
             android:inputType="text"
             android:maxLines="1"
@@ -128,6 +129,18 @@
                 android:layout_marginTop="4dp"
                 android:background="@drawable/voice" />
         </RelativeLayout>
+
+        <Button
+            android:id="@+id/discern_bt"
+            android:layout_width="44dp"
+            android:layout_height="20dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="11dp"
+            android:background="@drawable/round_background"
+            android:text="识别"
+            android:textColor="@color/white"
+            android:textSize="12dp" />
     </LinearLayout>
 
     <!--<View-->
@@ -167,7 +180,7 @@
             android:layout_marginLeft="10dp"
             android:layout_weight="1"
             android:background="@null"
-            android:hint="请填写收货人号码 (非必填)"
+            android:hint="请填写收货人号码 "
             android:imeOptions="actionDone"
             android:inputType="phone"
             android:maxLength="15"

@@ -180,7 +180,6 @@ public class CourierEvaluateActivity extends BaseActivity  {
         }
     }
 
-
     /**
      * checkbox点击事件
      */

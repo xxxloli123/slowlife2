@@ -1,7 +1,7 @@
 package com.interfaceconfig;
 
 public interface Config {
-    String LOCAL_HOST = "http://192.168.0.104:8080/";
+    String LOCAL_HOST = "http://192.168.0.103:8080/";
     String HOST = "http://www.zsh7.com/";
 
     /**
@@ -70,7 +70,6 @@ public interface Config {
      */
     String ADDORDER = "slowlife/appuserorder/addorder";
 
-
     /**
      * 创建订单所需信息
      */
@@ -79,7 +78,7 @@ public interface Config {
     /**
      * 创建订单
      */
-    String CREATEORDER = "slowlife/appuserorder/addorder";
+    String CREATEORDER = "slowlife/appuserorder/addorder2";
 
     /**
      * 快递公司列表
@@ -160,7 +159,6 @@ public interface Config {
      */
     String ORDER_DETAILS = "slowlife/appuserorder/queryorderid";
 
-
     /**
      * 账户信息
      */
@@ -188,12 +186,10 @@ public interface Config {
      */
     String MODIFYPWD = "slowlife/appuser/updatepassword";
 
-
     /**
      * 检测更新
      */
     String UPDATE = "slowlife/share/getnewestappversion";
-
 
     /**
      * bind
@@ -204,10 +200,12 @@ public interface Config {
      * unbind
      */
     String UNBINDACCOUNT = "slowlife/appuser/unbundling";
+
     /**
      * 预算价格
      */
     String BUDGETCOST = "slowlife/appuserorder/budgetcost";
+
     /**
      * getrule
      */
@@ -227,14 +225,14 @@ public interface Config {
      */
     String APPGETAREA = "slowlife/share/appgetarea";
 
+    /**
+     *描述：自动识别地址
+     */
+    String Discern_Address = "slowlife/api/distinguishaddress";
+
     static class Url {
         public static String getUrl(String url) {
             return HOST + url;
-        }
-    }
-    static class UrlFQ {
-        public static String getUrl(String url) {
-            return LOCAL_HOST + url;
         }
     }
 }

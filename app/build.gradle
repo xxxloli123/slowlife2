@@ -6,7 +6,7 @@ android {
         sign {
             keyAlias 'yunxin'
             keyPassword 'yunxin'
-            storeFile file('E:/Android/pro/slowlife/yunxin.jks')
+            storeFile file('H:/Android/backup/slowlife2/yunxin.jks')
             storePassword 'yunxin'
         }
     }
@@ -16,8 +16,8 @@ android {
         applicationId "com.android.slowlife"
         minSdkVersion 17
         targetSdkVersion 21
-        versionCode 7
-        versionName '2.0'
+        versionCode 11
+        versionName '2.0.1'
     }
     defaultConfig {
         multiDexEnabled true
@@ -54,6 +54,15 @@ android {
     }
 }
 
+repositories {
+    maven {
+        url "http://repo.baichuan-android.taobao.com/content/groups/BaichuanRepositories"
+    }
+    maven {
+        url "http://mirrors.dormforce.NET"
+    }
+}
+
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile project(':util')
@@ -73,6 +82,9 @@ dependencies {
     compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha8'
     compile 'com.squareup.okio:okio:1.12.0'
     compile 'com.jakewharton:butterknife:7.0.0'
+    //    compile 'com.jakewharton:butterknife:8.6.0'
+    //    compile 'com.jakewharton:butterknife-compiler:8.6.0'
+    //    compile 'com.jakewharton:butterknife-annotations:8.6.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
     testCompile 'junit:junit:4.12'
 }

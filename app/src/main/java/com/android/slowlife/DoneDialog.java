@@ -45,7 +45,6 @@ public class DoneDialog<T> extends Dialog {
         );
     }
 
-
     public DoneDialog<T> setMessage(CharSequence message) {
         if (msg==null)msg= (TextView) findViewById(R.id.dialog_msg);
         msg.setText(message);
@@ -56,6 +55,7 @@ public class DoneDialog<T> extends Dialog {
         listener = l;
         return this;
     }
+
     public void setVisible(){
 
     }

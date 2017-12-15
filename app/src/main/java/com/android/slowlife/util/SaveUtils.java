@@ -2,23 +2,29 @@ package com.android.slowlife.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.preference.PreferenceActivity;
 import android.text.TextUtils;
 
-
+import com.android.slowlife.R;
+import com.android.slowlife.app.MyApplication;
 import com.android.slowlife.objectmodel.UserInfoEntity;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 /**
- * Created by Administrator on 2017/2/20 0020.
+ * Created by Administrator on 2017/2/7 .
  */
-
 public class SaveUtils {
+
+
     /**
      * 读取配置
      *
@@ -82,10 +88,9 @@ public class SaveUtils {
      * @param object
      */
     public static boolean saveToApp(String key, Object object) {
-        SharedPreferences sp =null;
-//                MyApplication.mContext
-//                .getSharedPreferences(APP_COMMON_FILE_NAME,
-//                        Context.MODE_PRIVATE);
+        SharedPreferences sp = MyApplication.mContext
+                .getSharedPreferences(APP_COMMON_FILE_NAME,
+                        Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
 
         if (object instanceof String) {
@@ -112,10 +117,9 @@ public class SaveUtils {
      * @return
      */
     public static Object getFromApp(String key, Object defaultObject) {
-        SharedPreferences sp =null;
-//                MyApplication.mContext
-//                .getSharedPreferences(APP_COMMON_FILE_NAME,
-//                        Context.MODE_PRIVATE);
+        SharedPreferences sp = MyApplication.mContext
+                .getSharedPreferences(APP_COMMON_FILE_NAME,
+                        Context.MODE_PRIVATE);
         if (defaultObject instanceof String) {
             return sp.getString(key, (String) defaultObject);
         } else if (defaultObject instanceof Integer) {
@@ -245,6 +249,44 @@ public class SaveUtils {
             editor.remove(key);
             editor.commit();
         } catch (Exception e) {
+        }
+    }
+
+
+    /**
+     * 加载本地头像缓存
+     *
+     * @param context
+     */
+    public static Bitmap loadHead(Context context) {
+        File file=new File(context.getFilesDir().getAbsolutePath() + "/head");
+        if (file.exists())
+        return BitmapFactory.decodeFile(context.getFilesDir().getAbsolutePath() + "/head");
+        else return BitmapFactory.decodeResource(context.getResources(), R.drawable.def_head_ico);
+    }
+
+    /**
+     * 缓存头像到本地
+     *
+     * @param context
+     * @param img
+     */
+    public static void saveHead(Context context, Bitmap img) {
+        FileOutputStream fos = null;
+        try {
+            File file = new File(context.getFilesDir().getAbsolutePath() + "/head");
+            if (img != null) {
+                fos = new FileOutputStream(file);
+                img.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+            } else {
+                if (file.exists() && file.canRead()) file.delete();
+            }
+        } catch (IOException e) {
+        } finally {
+            try {
+                if (fos != null) fos.close();
+            } catch (IOException e) {
+            }
         }
     }
 }

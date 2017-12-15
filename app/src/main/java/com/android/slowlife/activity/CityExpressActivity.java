@@ -79,7 +79,6 @@ public class CityExpressActivity extends BaseActivity {
     private ExpressNavBarAdapter adapter;
     private Info info;
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -213,7 +212,7 @@ public class CityExpressActivity extends BaseActivity {
                 case Config.AREAINFO:
                     break;
                 case Config.GETRULE:
-                    rule.setText(jsonObject.getString("rule"));
+                    if (rule!=null) rule.setText(jsonObject.getString("rule"));
                     break;
             }
         }

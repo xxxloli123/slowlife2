@@ -1,15 +1,27 @@
 package com.android.slowlife;
 
+import android.Manifest;
 import android.app.Dialog;
+import android.app.DownloadManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,7 +45,10 @@ import com.android.slowlife.fragment.OrderFragment;
 import com.android.slowlife.fragment.WOrderFrag;
 import com.android.slowlife.model.Weather;
 import com.android.slowlife.util.CacheActivity;
+import com.android.slowlife.util.InstallUtils;
 import com.android.slowlife.util.SimpleCallback;
+import com.android.slowlife.util.ToastUtil;
+import com.android.slowlife.util.UpdataService;
 import com.google.gson.Gson;
 import com.interfaceconfig.Config;
 import com.slowlife.map.interfaces.APSImpl;
@@ -52,6 +67,7 @@ import java.util.Set;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -102,7 +118,6 @@ public class MainActivity extends BaseActivity implements APSInterface.OnApsChan
     private long timeMillis;
     private AMapLocation mapLocation;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -110,6 +125,8 @@ public class MainActivity extends BaseActivity implements APSInterface.OnApsChan
             CacheActivity.addActivity(this);
         }
         setContentView(R.layout.activity_main);
+
+        update(this,getVersionCode(this));
         ButterKnife.bind(this);
         initView(savedInstanceState);
         apsi = new APSImpl(this);
@@ -145,7 +162,98 @@ public class MainActivity extends BaseActivity implements APSInterface.OnApsChan
         }
     }
 
+    public static int getVersionCode(Context context) {
+        try {
+            PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+            return packageInfo.versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 
+    public void update(final Context context, final int versionCode) {
+        RequestBody requestBody=new MultipartBody.Builder()
+                .addFormDataPart("type","android")
+                .build();
+        Request req = new Request.Builder()
+                .tag("")
+                .post(requestBody)
+                .url(Config.Url.getUrl(Config.UPDATE)).build();
+        new OkHttpClient().newCall(req).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+            }
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try {
+                    final JSONObject json = new JSONObject(response.body().string());
+                    final int ver = json.getJSONObject("appVersion").getInt("version");
+                    Log.e("versionCode ","丢了个雷姆  "+versionCode+"  ver"+ver+"json"+json);
+                    if (ver > versionCode) {
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                upData();
+                            }
+                        });
+                    }
+//                    else {
+//                        handler.post(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                Toast.makeText(context, "已安装最新版", Toast.LENGTH_SHORT).show();
+//                            }
+//                        });
+//                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private static Handler handler = new Handler();
+
+    public void upData(){
+        Toast.makeText(this, "检测到新的版本，自动为您下载。。。", Toast.LENGTH_SHORT).show();
+        new InstallUtils(this, Config.Url.getUrl("/slowlife/share/appdownload?type=android"), "惠递",
+                new InstallUtils.DownloadCallBack() {
+            @Override
+            public void onStart() {
+            }
+
+            @Override
+            public void onComplete(String path) {
+                if (index!=null)index.setText("首页");
+                InstallUtils.installAPK(MainActivity.this, path, getPackageName() + ".provider", new InstallUtils.InstallCallBack() {
+                    @Override
+                    public void onSuccess() {
+
+                        Toast.makeText(MainActivity.this, "正在安装程序", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onFail(Exception e) {
+                        Toast.makeText(MainActivity.this, "安装失败:" + e.toString(), Toast.LENGTH_SHORT).show();
+                        Log.e("onFail","安装失败:" + e.toString());
+                    }
+                });
+            }
+
+            @Override
+            public void onLoading(long total, long current) {
+               if (index!=null)index.setText((int) (current * 100 / total)+"%");
+            }
+
+            @Override
+            public void onFail(Exception e) {
+                Toast.makeText(MainActivity.this, "下载失败:" + e.toString(), Toast.LENGTH_SHORT).show();
+                Log.e("onFail","下载失败:" + e.toString());
+            }
+
+        }).downloadAPK();
+    }
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -314,7 +422,7 @@ public class MainActivity extends BaseActivity implements APSInterface.OnApsChan
     /**
      * 切换fragment
      *
-     * @param fragment 传入当前切换的fragment
+     * @param fragment 传入当前切换的 fragment
      */
     private void changeFragment(Fragment fragment) {
         FragmentManager manager = getSupportFragmentManager();
@@ -364,10 +472,8 @@ public class MainActivity extends BaseActivity implements APSInterface.OnApsChan
         apsi.onPause();
     }
 
-
     @Override
     public void Fail() {
-
     }
 
     @Override
@@ -403,7 +509,6 @@ public class MainActivity extends BaseActivity implements APSInterface.OnApsChan
     protected void onSuccess(Call call, Response response, JSONObject json) throws JSONException {
         super.onSuccess(call, response, json);
     }
-
 
     private void showRpkgDialog(final JSONArray arr) throws JSONException {
         if (arr.length() == 0) return;
@@ -459,7 +564,6 @@ public class MainActivity extends BaseActivity implements APSInterface.OnApsChan
         dialog.setCanceledOnTouchOutside(false);
         dialog.show();
     }
-
 
 //    private void isFirst() {
 //        File file = new File(getFilesDir(), "slowfile.a");

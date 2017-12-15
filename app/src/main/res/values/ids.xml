@@ -24,5 +24,14 @@
   <item type="id" name="restart_preview"/>
   <item type="id" name="return_scan_result"/>
 
+  <item name="header_back" type="id" />
+  <item name="header_title" type="id" />
+  <item name="header_menu" type="id" />
+  <item name="refresh" type="id" />
 
+
+  <item name="dialog_title" type="id" />
+  <item name="dialog_done" type="id" />
+  <item name="dialog_cancel" type="id" />
+  <item name="dialog_close" type="id" />
 </resources>

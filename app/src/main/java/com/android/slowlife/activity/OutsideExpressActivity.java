@@ -6,10 +6,17 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.PointF;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -18,6 +25,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -26,6 +34,7 @@ import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,20 +44,18 @@ import com.amap.api.services.cloud.CloudItem;
 import com.android.slowlife.Area;
 import com.android.slowlife.AreaDialog.OnAreaSelectedCallback;
 import com.android.slowlife.BaseActivity;
+import com.android.slowlife.BuildConfig;
 import com.android.slowlife.DoneDialog;
 import com.android.slowlife.MsgDialog;
 import com.android.slowlife.R;
 import com.android.slowlife.adapter.DoorPickingAdapter;
 import com.android.slowlife.adapter.SelectExpressAdapter;
-import com.android.slowlife.adressselectorlib.AddressSelector;
-import com.android.slowlife.adressselectorlib.CityInterface;
-import com.android.slowlife.adressselectorlib.OnItemClickListener;
 import com.android.slowlife.app.MyApplication;
 import com.android.slowlife.bean.Info;
 import com.android.slowlife.objectmodel.AddressEntity;
-import com.android.slowlife.objectmodel.City;
 import com.android.slowlife.util.CacheActivity;
 import com.android.slowlife.util.SimpleCallback;
+import com.android.slowlife.util.ToastUtil;
 import com.android.slowlife.view.MyListView;
 import com.dialog.LoadDialog;
 import com.google.gson.Gson;
@@ -58,13 +65,19 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.UUID;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import okhttp3.Call;
+import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -111,6 +124,10 @@ public class OutsideExpressActivity extends BaseActivity implements OnAreaSelect
     EditText detailedAddress;
     @Bind(R.id.bredPacket)
     TextView bredPacket;
+    @Bind(R.id.commodity_type)
+    TextView commodityType;
+    @Bind(R.id.img)
+    ImageView img;
     private SharedPreferences sp;
     private DoorPickingAdapter adapter;
     private int touchSlop;
@@ -120,16 +137,13 @@ public class OutsideExpressActivity extends BaseActivity implements OnAreaSelect
     private JSONObject json;
     private JSONArray areas;
     private CloudItem cloud;
-    private AddressEntity address;
+    private AddressEntity address, endAddress;
     private int selectedPosition = -1;
     private JSONArray companyList;
-    //选择地区
-    private ArrayList<City> cities1 = new ArrayList<>();
-    private ArrayList<City> cities2 = new ArrayList<>();
-    private ArrayList<City> cities3 = new ArrayList<>();
-    private AddressSelector addressSelector;
-    private JSONArray proArray, cityArray, districtArray;
-    private JSONObject proObject, ctiyObject, districtObject;
+    private String mImagePath = Environment.getExternalStorageDirectory()+"/meta/";
+    private File camera, clipping;
+    private static final int CROP_CODE = 3;
+    private RequestBody fileRequest1;
 
     public OutsideExpressActivity() {
     }
@@ -186,28 +200,9 @@ public class OutsideExpressActivity extends BaseActivity implements OnAreaSelect
                 bredPacket.setText(String.format("当前红包有:%s个", json.getString("RedPacketsNumber")));     // 红包
             }
         });
-
-        RequestBody requestBody2 = new MultipartBody.Builder().setType(MultipartBody.FORM)
-                .addFormDataPart("pid", "")
-                .addFormDataPart("cid", "").build();
-        Request request2 = new Request.Builder().url(Config.Url.getUrl(Config.APPGETAREA)).post(requestBody2).build();
-        new OkHttpClient().newCall(request2).enqueue(new SimpleCallback(OutsideExpressActivity.this) {
-            @Override
-            public void onSuccess(String tag, JSONObject json) throws JSONException {
-                proArray = json.getJSONArray("Pro");
-                for (int i = 0; i < proArray.length(); i++) {
-                    JSONObject jsonObject = proArray.getJSONObject(i);
-                    City city = new City();
-                    city.setId(jsonObject.getString("id"));
-                    city.setName(jsonObject.getString("name"));
-                    cities1.add(city);
-                    Log.d("MyBaseAdapter", "区域=" + cities1);
-                }
-            }
-        });
     }
 
-    private void submit() {
+    private void submit()  {
         info = ((MyApplication) getApplication()).getInfo();
         if (info == null) {
             Toast.makeText(this, "请先登录", Toast.LENGTH_SHORT).show();
@@ -226,8 +221,24 @@ public class OutsideExpressActivity extends BaseActivity implements OnAreaSelect
             Toast.makeText(this, "请选择快递公司", Toast.LENGTH_SHORT).show();
             return;
         }
+        //IMG 的
+        FileInputStream fis = null;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
-//            JSONObject json = this.json.getJSONArray("tariff").getJSONObject(selectedPosition);
+            if (clipping!=null){
+                fis = new FileInputStream(clipping);
+                int len;
+                byte[] buf = new byte[512];
+                while ((len = fis.read(buf)) > 0) {
+                    baos.write(buf, 0, len);
+                    baos.flush();
+                }
+                byte[] fileData = baos.toByteArray();
+                fis.close();
+                baos.close();
+                fileRequest1 = RequestBody.create(MediaType.parse("application/octet-stream"), fileData);
+            }
+//            else fileRequest1= RequestBody.create(MediaType.parse("application/octet-stream"),"");
             final JSONObject params = new JSONObject();
             params.put("createUserId", info.getId());
             params.put("createUserName", address.getPersonname());
@@ -239,8 +250,6 @@ public class OutsideExpressActivity extends BaseActivity implements OnAreaSelect
             params.put("startHouseNumber", address.getHouseNumber());
             params.put("startLng", String.valueOf(address.getLng()));
             params.put("startLat", String.valueOf(address.getLat()));
-            if (!isEmpty(selectArea.getText()))
-                params.put("endPro", selectArea.getText());
             params.put("weight", cargoWeight.getText());
             params.put("userChoiceCommpanyId", companyList.getJSONObject(selectedPosition).getString("id"));
             params.put("userChoiceCommpanyName", companyList.getJSONObject(selectedPosition).getString("name"));
@@ -248,24 +257,34 @@ public class OutsideExpressActivity extends BaseActivity implements OnAreaSelect
 //            params.put("endHouseNumber", detaAddr);
             params.put("endLng", "0");
             params.put("endLat", "0");
-            params.put("receiverName", consigneeName.getText());
-            params.put("receiverPhone", consigneePhone.getText());
-            params.put("endPro", (proObject != null) ? proObject.getString("name") : "");
-            params.put("endCity", (ctiyObject != null) ? ctiyObject.getString("name") : "");
-            params.put("endDistrict", (districtObject != null) ? districtObject.getString("name") : "");
+            params.put("receiverName", (endAddress != null) ? endAddress.getPersonname() : "");
+            params.put("receiverPhone", (endAddress != null) ? endAddress.getPersonphone() : "");
+            params.put("endPro", (endAddress != null) ? endAddress.getPro() : "");
+            params.put("endCity", (endAddress != null) ? endAddress.getCity() : "");
+            params.put("endDistrict", (endAddress != null) ? endAddress.getDistrict() : "");
             params.put("endStreet", "");
-            params.put("endHouseNumber", detailedAddress.getText());
+            params.put("endHouseNumber", (endAddress != null) ? endAddress.getHouseNumber() : "");
             params.put("type", "Intercity");
+            //商品类型
+            params.put("goodsName", commodityType.getText().toString());
             new DoneDialog(this).setMessage("确定创建订单吗?\n费用由快递员上门后收取").setListener(
                     new DoneDialog.DialogButtonClickListener() {
                         @Override
                         public void done(Dialog dialog, Object tag) {
                             dialog.dismiss();
-                            RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
-                                    .addFormDataPart("ordeStr", params.toString())
-                                    .addFormDataPart("appVersion", "2.0")
-                                    .build();
-                            Request request = new Request.Builder().post(requestBody)
+//                            参数：[ordeStr, appVersion, pictures]
+//                            RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
+//                                    .addFormDataPart("ordeStr", params.toString())
+//                                    .addFormDataPart("appVersion", "2.0")
+//                                    .addFormDataPart("pictures", (clipping==null)?"":clipping.getName(),
+//                                            fileRequest1)
+//                                    .build();
+                            MultipartBody.Builder builder=new MultipartBody.Builder().setType(MultipartBody.FORM);
+                            builder.addFormDataPart("ordeStr", params.toString())
+                                    .addFormDataPart("appVersion", "20171214");
+                            if (clipping!=null)builder.addFormDataPart("pictures", clipping.getName(),
+                                    fileRequest1);
+                            Request request = new Request.Builder().post(builder.build())
                                     .url(Config.Url.getUrl(Config.CREATEORDER))
                                     .tag(Config.CREATEORDER)
                                     .build();
@@ -281,140 +300,17 @@ public class OutsideExpressActivity extends BaseActivity implements OnAreaSelect
             ).show();
         } catch (JSONException e) {
             e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-    }
-
-    /**
-     * 设置图标可拖动
-     */
-    private void suspensionIcon() {
-        sp = getSharedPreferences("config", Context.MODE_PRIVATE);
-        int lastx = sp.getInt("lastx", 0);
-        int lasty = sp.getInt("lasty", 0);
-        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) appointment.getLayoutParams();
-        params.leftMargin = lastx;
-        params.topMargin = lasty;
-        appointment.setLayoutParams(params);
-        appointment.setOnTouchListener(new BtnTouchListener());
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         ButterKnife.unbind(this);
-    }
-
-    /**
-     * 选择区域dialog窗口
-     */
-    private void selectProvinceDialog() {
-        View view = LayoutInflater.from(OutsideExpressActivity.this).inflate(R.layout.dialog_select_area1, null);
-        final Dialog selectAreaDialog = new AlertDialog.Builder(this, R.style.DialogStyle).create();
-        addressSelector = (AddressSelector) view.findViewById(R.id.address);
-        addressSelector.setTabAmount(3);
-        addressSelector.setCities(cities1);
-        View delete = view.findViewById(R.id.back_rl);
-        delete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                selectAreaDialog.dismiss();
-            }
-        });
-        selectAreaDialog.show();
-        selectAreaDialog.setContentView(view);
-        addressSelector.setOnItemClickListener(new OnItemClickListener() {
-            @Override
-            public void itemClick(final AddressSelector addressSelector, CityInterface city, int tabPosition, int position) {
-                switch (tabPosition) {
-                    case 0:
-                        try {
-                            proObject = proArray.getJSONObject(position);
-                            RequestBody requestBody2 = new MultipartBody.Builder().setType(MultipartBody.FORM)
-                                    .addFormDataPart("pid", proObject.getString("id"))
-                                    .addFormDataPart("cid", "").build();
-                            Request request = new Request.Builder().url(Config.Url.getUrl(Config.APPGETAREA)).post(requestBody2).build();
-                            new OkHttpClient().newCall(request).enqueue(new SimpleCallback(OutsideExpressActivity.this) {
-                                @Override
-                                public void onSuccess(String tag, JSONObject json) throws JSONException {
-                                    cityArray = json.getJSONArray("City");
-                                    for (int i = 0; i < cityArray.length(); i++) {
-                                        JSONObject jsonObject = cityArray.getJSONObject(i);
-                                        City city = new City();
-                                        city.setId(jsonObject.getString("id"));
-                                        city.setName(jsonObject.getString("name"));
-                                        cities2.add(city);
-                                        addressSelector.setCities(cities2);
-                                        Log.d("MyBaseAdapter", "区域=" + cities1);
-                                    }
-                                }
-                            });
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        cities2 = new ArrayList<>();
-                        break;
-                    case 1:
-                        try {
-                            ctiyObject = cityArray.getJSONObject(position);
-                            RequestBody requestBody2 = new MultipartBody.Builder().setType(MultipartBody.FORM)
-                                    .addFormDataPart("pid", "")
-                                    .addFormDataPart("cid", ctiyObject.getString("id")).build();
-                            Request request = new Request.Builder().url(Config.Url.getUrl(Config.APPGETAREA)).post(requestBody2).build();
-                            new OkHttpClient().newCall(request).enqueue(new SimpleCallback(OutsideExpressActivity.this) {
-                                @Override
-                                public void onSuccess(String tag, JSONObject json) throws JSONException {
-                                    districtArray = json.getJSONArray("District");
-                                    for (int i = 0; i < districtArray.length(); i++) {
-                                        JSONObject jsonObject = districtArray.getJSONObject(i);
-                                        City city = new City();
-                                        city.setId(jsonObject.getString("id"));
-                                        city.setName(jsonObject.getString("name"));
-                                        cities3.add(city);
-                                        addressSelector.setCities(cities3);
-                                    }
-                                }
-                            });
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        cities3 = new ArrayList<>();
-                        break;
-                    case 2:
-                        try {
-                            if (companyList != null) {
-                                imputedPrice();
-                            }
-                            districtObject = districtArray.getJSONObject(position);
-                            selectArea.setText(proObject.getString("name") + "  " + ctiyObject.getString("name") + "  " + districtObject.getString("name"));
-                            selectAreaDialog.dismiss();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        break;
-                }
-            }
-        });
-        addressSelector.setOnTabSelectedListener(new AddressSelector.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(AddressSelector addressSelector, AddressSelector.Tab tab) {
-                switch (tab.getIndex()) {
-                    case 0:
-                        addressSelector.setCities(cities1);
-                        break;
-                    case 1:
-                        addressSelector.setCities(cities2);
-                        break;
-                    case 2:
-                        addressSelector.setCities(cities3);
-                        break;
-                }
-            }
-
-            @Override
-            public void onTabReselected(AddressSelector addressSelector, AddressSelector.Tab tab) {
-
-            }
-        });
     }
 
     /**
@@ -451,7 +347,7 @@ public class OutsideExpressActivity extends BaseActivity implements OnAreaSelect
                     expressCompany.setText(companyList.getJSONObject(position).getString("name"));
                     textView.setText(companyList.getJSONObject(position).getString("name") + "资费标准");
                     loadP();
-                    if (proObject != null) {
+                    if (endAddress != null) {
                         imputedPrice();
                     }
                 } catch (JSONException e) {
@@ -475,10 +371,9 @@ public class OutsideExpressActivity extends BaseActivity implements OnAreaSelect
                 startActivity(intent);
                 break;
             case R.id.delivery_address_rl://收货地址
-
                 break;
             case R.id.minus://减
-                if (proObject == null) {
+                if (endAddress == null) {
                     Toast.makeText(OutsideExpressActivity.this, "请选择送货区域", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -493,7 +388,7 @@ public class OutsideExpressActivity extends BaseActivity implements OnAreaSelect
                 imputedPrice();
                 break;
             case R.id.add://加
-                if (proObject == null) {
+                if (endAddress == null) {
                     Toast.makeText(OutsideExpressActivity.this, "请选择送货区域", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -523,7 +418,9 @@ public class OutsideExpressActivity extends BaseActivity implements OnAreaSelect
                 break;
             case R.id.select_area_rl:       //  收货区域
 //                new AreaDialog(this, this).show();
-                selectProvinceDialog();
+                intent = new Intent(this, ReceivingInfoActivity.class);
+                if (endAddress!=null)intent.putExtra("Address", endAddress);
+                startActivityForResult(intent, 2333);
                 break;
             case R.id.agreement:    //   服务协议
                 intent = new Intent(this, HelpActivity.class);
@@ -561,12 +458,62 @@ public class OutsideExpressActivity extends BaseActivity implements OnAreaSelect
                     try {
                         loadP();
                     } catch (JSONException e) {
-                        Toast.makeText(this, "解析数据失败", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "数据读取失败", Toast.LENGTH_SHORT).show();
                     }
                 }
                 break;
+            case 2333:
+                endAddress = data.getParcelableExtra("Address");
+                if (endAddress == null) {
+                    ToastUtil.show(this, "数据读取失败");
+                    selectArea.setText("数据读取失败");
+                    return;
+                }
+                selectArea.setText(endAddress.getPersonname() + " " + endAddress.getPersonphone() + "　" + endAddress.getHouseNumber());
+                break;
+            case 2:
+                Uri uri = data.getData();
+                if (uri == null) {
+                    Toast.makeText(this, "选择图片文件读取出错", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                startImageZoom(uri);
+                break;
+            case 1:
+                startImageZoom(FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID  +
+                        ".provider", camera));
+                break;
+            case CROP_CODE:
+                if (data != null) {
+                    try {
+                        String fils = clipping.getAbsolutePath();
+                        Bitmap bitmap = BitmapFactory.decodeFile(fils);
+                        compressPicture(fils,clipping.getAbsoluteFile());
+                        img.setImageBitmap(bitmap);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }else Toast.makeText(this, "图片文件剪裁出错", Toast.LENGTH_LONG).show();
+                break;
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void startImageZoom(Uri uri) {
+        clipping = new File(getExternalCacheDir(), UUID.randomUUID().toString() + ".png");
+        //构建隐式Intent来启动裁剪程序
+        Intent intent = new Intent("com.android.camera.action.CROP");
+        //添加这一句表示对目标应用临时授权该Uri所代表的文件
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        //设置数据uri和类型为图片类型
+        intent.setDataAndType(uri, "image/*");
+        //显示View为可裁剪的
+        intent.putExtra("crop", true);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(clipping));
+        intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
+        intent.putExtra("noFaceDetection", true);
+        startActivityForResult(intent, CROP_CODE);
     }
 
     private void loadP() throws JSONException {
@@ -590,6 +537,190 @@ public class OutsideExpressActivity extends BaseActivity implements OnAreaSelect
     @Override
     public void onSelected(Area area, int position) {
         selectArea.setText(area.getName());
+    }
+
+    @OnClick({R.id.commodity_type, R.id.upload_front})
+    public void onViewClicked(View view) {
+        switch (view.getId()) {
+            case R.id.commodity_type:
+                selectCommodityType();
+                break;
+            case R.id.upload_front:
+                popwindowsshow();
+                break;
+        }
+    }
+
+    /**
+     * 弹出窗口
+     */
+    private void popwindowsshow() {
+        final PopupWindow pop = new PopupWindow(this);
+        View view = getLayoutInflater().inflate(R.layout.popwindows_head, null);
+        final LinearLayout popwindows = (LinearLayout) view.findViewById(R.id.ll_popup);
+        pop.setWidth(ViewGroup.LayoutParams.MATCH_PARENT);
+        pop.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
+        pop.setBackgroundDrawable(new BitmapDrawable());
+        pop.setFocusable(true);
+        pop.setOutsideTouchable(true);
+        pop.setContentView(view);
+        RelativeLayout parent = (RelativeLayout) view.findViewById(R.id.parent);
+        Button bt1 = (Button) view.findViewById(R.id.item_popupwindows_camera);
+        Button bt2 = (Button) view.findViewById(R.id.item_popupwindows_photo);
+        Button bt3 = (Button) view.findViewById(R.id.item_popupwindows_cancel);
+        parent.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                pop.dismiss();
+                popwindows.clearAnimation();
+            }
+        });
+        bt1.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {//拍照
+                Intent it = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                if (it.resolveActivity(getPackageManager()) != null) {
+                    File path = new File(mImagePath);
+                    if (!path.exists()) {
+                        path.mkdir();
+                    }
+                    camera = new File(mImagePath, UUID.randomUUID().toString()+".jpg");
+                    Uri photoUri = FileProvider.getUriForFile(OutsideExpressActivity.this,
+                            getPackageName() + ".provider", camera);
+
+                    it.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    it.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
+                    startActivityForResult(it, 1);
+                }
+                pop.dismiss();
+                popwindows.clearAnimation();
+            }
+        });
+        bt2.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {//从相册中选择
+                Intent local =new  Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                local.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
+                startActivityForResult(local, 2);
+                pop.dismiss();
+                popwindows.clearAnimation();
+            }
+        });
+        bt3.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                pop.dismiss();
+                popwindows.clearAnimation();
+            }
+        });
+        pop.showAtLocation(view, Gravity.BOTTOM, 0, 0);
+    }
+
+    /**
+     * 商品类型
+     */
+    public void selectCommodityType() {
+        View view = LayoutInflater.from(this).inflate(R.layout.dialog_select_commodity_type, null);
+        final Dialog selectCommodityTypeDialog = new AlertDialog.Builder(this, R.style.Theme_AppCompat_DayNight_Dialog).create();
+        CheckBox commodity = (CheckBox) view.findViewById(R.id.commodity);
+        CheckBox digital_products = (CheckBox) view.findViewById(R.id.digital_products);
+        CheckBox food = (CheckBox) view.findViewById(R.id.food);
+        CheckBox file = (CheckBox) view.findViewById(R.id.file);
+        CheckBox clothes = (CheckBox) view.findViewById(R.id.clothes);
+        CheckBox rests = (CheckBox) view.findViewById(R.id.rests);
+        selectCommodityTypeDialog.show();
+        selectCommodityTypeDialog.setContentView(view);
+        View delete = view.findViewById(R.id.back_rl);
+        delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                selectCommodityTypeDialog.dismiss();
+            }
+        });
+        commodity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                commodityType.setText("日用品");
+                selectCommodityTypeDialog.dismiss();
+            }
+        });
+        digital_products.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                commodityType.setText("数码产品");
+                selectCommodityTypeDialog.dismiss();
+            }
+        });
+        food.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                commodityType.setText("食品");
+                selectCommodityTypeDialog.dismiss();
+            }
+        });
+        file.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                commodityType.setText("文件");
+                selectCommodityTypeDialog.dismiss();
+            }
+        });
+        clothes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                commodityType.setText("衣物");
+                selectCommodityTypeDialog.dismiss();
+            }
+        });
+        rests.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                commodityType.setText("其他");
+                selectCommodityTypeDialog.dismiss();
+            }
+        });
+    }
+
+    /**
+     * 按照图片尺寸压缩：
+     */
+    public static void compressPicture(String srcPath, File desPath) {
+        FileOutputStream fos = null;
+        BitmapFactory.Options op = new BitmapFactory.Options();
+
+        // 开始读入图片，此时把options.inJustDecodeBounds 设回true了
+        op.inJustDecodeBounds = true;
+        Bitmap bitmap = BitmapFactory.decodeFile(srcPath, op);
+        op.inJustDecodeBounds = false;
+        if (op.outWidth == 200f) return;
+        // 缩放图片的尺寸
+        float w = op.outWidth;
+        float h = op.outHeight;
+        float hh = 400f;//
+        float ww = 400f;//
+        // 最长宽度或高度1024
+        float be = 1.0f;
+//        if (w > h || w > ww) {
+//            be = (float) (w / ww);
+//        } else if (w < h || h > hh) {
+//            be = (float) (h / hh);
+//        }
+        if (h > hh && w > ww) be = (float) (w / ww);
+        if (be <= 0) {
+            be = 1.0f;
+        }
+        op.inSampleSize = (int) be;// 设置缩放比例,这个数字越大,图片大小越小.
+        // 重新读入图片，注意此时已经把options.inJustDecodeBounds 设回false了
+        bitmap = BitmapFactory.decodeFile(srcPath, op);
+        int desWidth = (int) (w / be);
+        int desHeight = (int) (h / be);
+        bitmap = Bitmap.createScaledBitmap(bitmap, desWidth, desHeight, true);
+        try {
+            fos = new FileOutputStream(desPath);
+            if (bitmap != null) {
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     class Callback extends SimpleCallback {
@@ -626,7 +757,7 @@ public class OutsideExpressActivity extends BaseActivity implements OnAreaSelect
                     }
                     break;
                 case Config.GETRULE:
-                    rule.setText(jsonObject.getString("rule"));
+                    if (rule!=null) rule.setText(jsonObject.getString("rule"));
                     break;
                 case Config.BUDGETCOST:
                     price.setText(String.format("预估金额:%s元", jsonObject.getString("cost")));
@@ -635,7 +766,6 @@ public class OutsideExpressActivity extends BaseActivity implements OnAreaSelect
             sureBt.setEnabled(true);
         }
     }
-
 
     @Override
     protected void onFail(Call call, IOException e) {
@@ -702,54 +832,11 @@ public class OutsideExpressActivity extends BaseActivity implements OnAreaSelect
         }
     }
 
-    class BtnTouchListener implements View.OnTouchListener {
-        PointF down = new PointF();
-        boolean intercept = false;
-
-
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    down.x = event.getX();
-                    down.y = event.getY();
-                    intercept = false;
-                    break;
-                case MotionEvent.ACTION_MOVE:
-                    final int left = (int) (event.getX() - down.x);
-                    final int top = (int) (event.getY() - down.y);
-                    if (Math.abs(left) > touchSlop || Math.abs(top) > touchSlop || intercept) {
-                        intercept = true;
-                        int l = appointment.getLeft();
-                        int r = appointment.getRight();
-                        int t = appointment.getTop();
-                        int b = appointment.getBottom();
-                        int newt = t + top;
-                        int newb = b + top;
-                        int newl = l + left;
-                        int newr = r + left;
-                        if ((newl < 0) || (newt < 0)
-                                || (newr > display.widthPixels)
-                                || (newb > display.heightPixels)) {
-                            break;
-                        }
-                        // 更新iv在屏幕的位置.
-                        appointment.layout(newl, newt, newr, newb);
-                    } else intercept = false;
-                    return intercept;
-                case MotionEvent.ACTION_UP:
-                case MotionEvent.ACTION_CANCEL:
-                    break;
-            }
-            return intercept;
-        }
-    }
-
     private void imputedPrice() {
         if (address == null) return;
         if (selectedPosition == -1) return;
         if (isEmpty(selectArea.getText())) return;
-        if (proObject == null) {
+        if (endAddress == null) {
             Toast.makeText(OutsideExpressActivity.this, "请选择送货区域", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -767,7 +854,7 @@ public class OutsideExpressActivity extends BaseActivity implements OnAreaSelect
                     .addFormDataPart("startDistrict", address.getDistrict())
                     .addFormDataPart("startStreet", address.getStreet())
                     .addFormDataPart("expressCompanyId", companyList.getJSONObject(selectedPosition).getString("id"))
-                    .addFormDataPart("endPro", proObject.getString("name"))
+                    .addFormDataPart("endPro", endAddress.getPro())
                     .addFormDataPart("weight", cargoWeight.getText().toString())
                     .addFormDataPart("userId", info.getId())
                     .build();

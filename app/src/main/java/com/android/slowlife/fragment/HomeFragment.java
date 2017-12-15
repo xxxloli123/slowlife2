@@ -4,6 +4,7 @@ package com.android.slowlife.fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -140,7 +141,13 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener {
                 startActivity(intent);
                 break;
             case R.id.fragment_home_logo:
-                Toast.makeText(getContext(), "商城正在建设,敬请期待...", Toast.LENGTH_SHORT).show();
+                Intent intent1 = new Intent();
+//Intent intent = new Intent(Intent.ACTION_VIEW,uri);
+                intent1.setAction("android.intent.action.VIEW");
+                Uri content_url = Uri.parse("http://www.zsh7.com/app/zsh/index.html");
+                intent1.setData(content_url);
+                startActivity(intent1);
+//                Toast.makeText(getContext(), "商城正在建设,敬请期待...", Toast.LENGTH_SHORT).show();
 //                WxPay.Pay(getContext());
                 break;
 //            case R.id.fragment_home_temperature:

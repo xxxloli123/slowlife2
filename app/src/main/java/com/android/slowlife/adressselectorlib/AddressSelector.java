@@ -70,6 +70,7 @@ public class AddressSelector extends LinearLayout implements View.OnClickListene
         super(context, attrs, defStyleAttr);
         init(context);
     }
+
     private void init(Context context){
         removeAllViews();
         this.mContext = context;
