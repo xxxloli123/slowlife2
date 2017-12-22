@@ -3,15 +3,25 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://D:\android\pro\zshMerchant_backup\slowlife2\app\app.iml" filepath="D:\android\pro\zshMerchant_backup\slowlife2\app\app.iml" />
       <module fileurl="file://$PROJECT_DIR$/interfaceconfig/interfaceconfig.iml" filepath="$PROJECT_DIR$/interfaceconfig/interfaceconfig.iml" />
+      <module fileurl="file://D:\android\pro\zshMerchant_backup\slowlife2\interfaceconfig\interfaceconfig.iml" filepath="D:\android\pro\zshMerchant_backup\slowlife2\interfaceconfig\interfaceconfig.iml" />
       <module fileurl="file://$PROJECT_DIR$/map/map.iml" filepath="$PROJECT_DIR$/map/map.iml" />
+      <module fileurl="file://D:\android\pro\zshMerchant_backup\slowlife2\map\map.iml" filepath="D:\android\pro\zshMerchant_backup\slowlife2\map\map.iml" />
       <module fileurl="file://$PROJECT_DIR$/mzbanner/mzbanner.iml" filepath="$PROJECT_DIR$/mzbanner/mzbanner.iml" />
+      <module fileurl="file://D:\android\pro\zshMerchant_backup\slowlife2\mzbanner\mzbanner.iml" filepath="D:\android\pro\zshMerchant_backup\slowlife2\mzbanner\mzbanner.iml" />
       <module fileurl="file://$PROJECT_DIR$/pay/pay.iml" filepath="$PROJECT_DIR$/pay/pay.iml" />
+      <module fileurl="file://D:\android\pro\zshMerchant_backup\slowlife2\pay\pay.iml" filepath="D:\android\pro\zshMerchant_backup\slowlife2\pay\pay.iml" />
       <module fileurl="file://$PROJECT_DIR$/share&amp;sign/share&amp;sign.iml" filepath="$PROJECT_DIR$/share&amp;sign/share&amp;sign.iml" />
+      <module fileurl="file://D:\android\pro\zshMerchant_backup\slowlife2\share&amp;sign\share&amp;sign.iml" filepath="D:\android\pro\zshMerchant_backup\slowlife2\share&amp;sign\share&amp;sign.iml" />
       <module fileurl="file://$PROJECT_DIR$/slowlife2.iml" filepath="$PROJECT_DIR$/slowlife2.iml" />
+      <module fileurl="file://D:\android\pro\zshMerchant_backup\slowlife2\slowlife2.iml" filepath="D:\android\pro\zshMerchant_backup\slowlife2\slowlife2.iml" />
       <module fileurl="file://$PROJECT_DIR$/util/util.iml" filepath="$PROJECT_DIR$/util/util.iml" />
+      <module fileurl="file://D:\android\pro\zshMerchant_backup\slowlife2\util\util.iml" filepath="D:\android\pro\zshMerchant_backup\slowlife2\util\util.iml" />
       <module fileurl="file://$PROJECT_DIR$/xgpush/xgpush.iml" filepath="$PROJECT_DIR$/xgpush/xgpush.iml" />
+      <module fileurl="file://D:\android\pro\zshMerchant_backup\slowlife2\xgpush\xgpush.iml" filepath="D:\android\pro\zshMerchant_backup\slowlife2\xgpush\xgpush.iml" />
       <module fileurl="file://$PROJECT_DIR$/zxing/zxing.iml" filepath="$PROJECT_DIR$/zxing/zxing.iml" />
+      <module fileurl="file://D:\android\pro\zshMerchant_backup\slowlife2\zxing\zxing.iml" filepath="D:\android\pro\zshMerchant_backup\slowlife2\zxing\zxing.iml" />
     </modules>
   </component>
 </project>

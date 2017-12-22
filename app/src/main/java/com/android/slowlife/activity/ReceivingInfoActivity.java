@@ -68,7 +68,7 @@ public class ReceivingInfoActivity extends BaseActivity implements OkHttpCallbac
     private AddressSelector addressSelector;
     private JSONObject proObject,districtObject,ctiyObject;
     private JSONArray proArray, cityArray, districtArray;
-    private AddressEntity getAdd;
+    private AddressEntity getAdd=new AddressEntity();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -6,7 +6,7 @@ android {
         sign {
             keyAlias 'yunxin'
             keyPassword 'yunxin'
-            storeFile file('I:/Android/backup/slowlife2/yunxin.jks')
+            storeFile file('D:/android/pro/zshMerchant_backup/slowlife2/yunxin.jks')
             storePassword 'yunxin'
         }
     }
