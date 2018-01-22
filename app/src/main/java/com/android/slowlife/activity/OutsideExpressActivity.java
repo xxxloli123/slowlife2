@@ -46,6 +46,7 @@ import com.android.slowlife.AreaDialog.OnAreaSelectedCallback;
 import com.android.slowlife.BaseActivity;
 import com.android.slowlife.BuildConfig;
 import com.android.slowlife.DoneDialog;
+import com.android.slowlife.MainActivity;
 import com.android.slowlife.MsgDialog;
 import com.android.slowlife.R;
 import com.android.slowlife.adapter.DoorPickingAdapter;
@@ -306,6 +307,24 @@ public class OutsideExpressActivity extends BaseActivity implements OnAreaSelect
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void goPay() {
+        View view1 = LayoutInflater.from(OutsideExpressActivity.this).inflate(R.layout.dialog_sure, null);
+        final AlertDialog alertDialog = new AlertDialog.Builder(OutsideExpressActivity.this, R.style.Theme_AppCompat_DayNight_Dialog).create();
+        Button sure = (Button) view1.findViewById(R.id.sure_bt);
+        sure.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent=new Intent();
+                intent.putExtra("goPay",true);
+                intent.setClass(OutsideExpressActivity.this, MainActivity.class);
+                setResult(Activity.RESULT_OK, intent);
+                alertDialog.dismiss();
+            }
+        });
+        alertDialog.setView(view1);
+        alertDialog.show();
     }
 
     @Override
@@ -725,6 +744,7 @@ public class OutsideExpressActivity extends BaseActivity implements OnAreaSelect
                     break;
                 case Config.CREATEORDER:
                     new MsgDialog(OutsideExpressActivity.this).show();
+
                     break;
                 case Config.AREAINFO:
                     json = jsonObject;
@@ -751,6 +771,13 @@ public class OutsideExpressActivity extends BaseActivity implements OnAreaSelect
                     break;
             }
             sureBt.setEnabled(true);
+        }
+
+        @Override
+        public void onFail(JSONObject json) throws JSONException {
+            super.onFail(json);
+            if (json.getJSONObject("result").getString("message") .contains("未付款"))
+                goPay();
         }
     }
 
@@ -854,5 +881,4 @@ public class OutsideExpressActivity extends BaseActivity implements OnAreaSelect
             e.printStackTrace();
         }
     }
-
 }

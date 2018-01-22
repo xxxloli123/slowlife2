@@ -5,7 +5,7 @@ android {
         config {
             keyAlias 'yunxin'
             keyPassword 'yunxin'
-            storeFile file('D:/android/pro/zshMerchant_backup/slowlife2/yunxin.jks')
+            storeFile file('E:/android/pro/zshMerchant_backup/slowlife2/yunxin.jks')
             storePassword 'yunxin'
         }
     }

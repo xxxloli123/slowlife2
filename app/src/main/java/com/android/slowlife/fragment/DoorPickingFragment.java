@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -27,6 +28,7 @@ import android.widget.Toast;
 import com.DisplayUtil;
 import com.android.slowlife.BaseFragment;
 import com.android.slowlife.DoneDialog;
+import com.android.slowlife.MainActivity;
 import com.android.slowlife.MsgDialog;
 import com.android.slowlife.R;
 import com.android.slowlife.activity.CityExpressActivity;
@@ -47,6 +49,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -239,7 +243,7 @@ public class DoorPickingFragment extends BaseFragment implements View.OnClickLis
                 params.put("userChoiceCommpanyName", json.getString("expressCompanyName"));
                 params.put("userChoiceCommpanyCode", "ZSHHD");
             } else {
-                if (this.json.getJSONArray("tariff").length() == 0) {
+                if (this.json==null||this.json.getJSONArray("tariff").length() == 0) {
                     Toast.makeText(getContext(), "暂未覆盖该区域", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -430,13 +434,10 @@ public class DoorPickingFragment extends BaseFragment implements View.OnClickLis
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
     }
-
 
     /**
      * 查询符合的手机号码
-     *
      * @param str
      */
     private static String checkCellphone(String str) {
@@ -515,7 +516,28 @@ public class DoorPickingFragment extends BaseFragment implements View.OnClickLis
         public void onFail(JSONObject json) throws JSONException {
             super.onFail(json);
             if (sureBt != null) sureBt.setEnabled(true);
+            if (json.getJSONObject("result").getString("message") .contains("未付款"))
+            goPay();
         }
+    }
+
+    private void goPay() {
+        View view1 = LayoutInflater.from(getContext()).inflate(R.layout.dialog_sure, null);
+        final AlertDialog alertDialog = new AlertDialog.Builder(getContext(), R.style.Theme_AppCompat_DayNight_Dialog).create();
+        Button sure = (Button) view1.findViewById(R.id.sure_bt);
+        sure.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent=new Intent();
+                intent.putExtra("goPay",true);
+                intent.setClass(getContext(), MainActivity.class);
+                getActivity().startActivity(intent);
+                if (getActivity() != null) getActivity().finish();
+                alertDialog.dismiss();
+            }
+        });
+        alertDialog.setView(view1);
+        alertDialog.show();
     }
 
     private void getInfo(AddressEntity address) {
@@ -570,5 +592,4 @@ public class DoorPickingFragment extends BaseFragment implements View.OnClickLis
             e.printStackTrace();
         }
     }
-
 }

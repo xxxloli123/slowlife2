@@ -294,7 +294,6 @@ public class OrderDetailsActivity extends BaseActivity {
         loadImg();
     }
 
-
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.back_rl:
@@ -369,7 +368,6 @@ public class OrderDetailsActivity extends BaseActivity {
         }
 
     };
-
 
     private void loadImg() {
         if (oe.getType().equals("Intercity")

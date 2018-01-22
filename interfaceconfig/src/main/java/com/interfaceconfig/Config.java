@@ -1,7 +1,7 @@
 package com.interfaceconfig;
 
 public interface Config {
-    String LOCAL_HOST = "http://192.168.0.103:8080/";
+    String LOCAL_HOST = "http://192.168.0.101:8080/";
     String HOST = "http://www.zsh7.com/";
 
     /**
@@ -63,7 +63,6 @@ public interface Config {
      * 删除收货地址
      */
     String DELADDR = "slowlife/appuser/userdeladdresses";
-
 
     /**
      * 添加订单

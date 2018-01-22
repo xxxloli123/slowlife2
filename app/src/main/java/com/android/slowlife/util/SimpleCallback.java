@@ -79,7 +79,6 @@ public abstract class SimpleCallback implements Callback {
         }
     }
 
-
     public abstract void onSuccess(String tag, JSONObject json) throws JSONException;
 
     public void onFail(Call call) {

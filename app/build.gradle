@@ -6,7 +6,7 @@ android {
         sign {
             keyAlias 'yunxin'
             keyPassword 'yunxin'
-            storeFile file('D:/android/pro/zshMerchant_backup/slowlife2/yunxin.jks')
+            storeFile file('E:/android/pro/zshMerchant_backup/slowlife2/yunxin.jks')
             storePassword 'yunxin'
         }
     }
@@ -16,8 +16,8 @@ android {
         applicationId "com.android.slowlife"
         minSdkVersion 17
         targetSdkVersion 21
-        versionCode 11
-        versionName '2.0.1'
+        versionCode 15
+        versionName '2.5.3'
     }
     defaultConfig {
         multiDexEnabled true
@@ -31,13 +31,11 @@ android {
             minifyEnabled true
             //Zipalign优化
             zipAlignEnabled true
-
             // 移除无用的resource文件
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             debuggable false
             signingConfig signingConfigs.sign
-
         }
         debug {
             signingConfig signingConfigs.sign

@@ -59,7 +59,6 @@ public class ReceivingInfoActivity extends BaseActivity implements OkHttpCallbac
     EditText addrDes;
     @Bind(R.id.discern_et)
     EditTextChange discernEt;
-    
 
     //选择地区
     private ArrayList<City> cities1 = new ArrayList<>();
@@ -213,7 +212,7 @@ public class ReceivingInfoActivity extends BaseActivity implements OkHttpCallbac
                     case 2:
                         try {
                             districtObject = districtArray.getJSONObject(position);
-                            getAdd.setCity(districtObject.getString("name"));
+                            getAdd.setDistrict(districtObject.getString("name"));
                             address .setText(proObject.getString("name") + "  " +
                                     ctiyObject.getString("name") + "  " + districtObject.getString("name"));
                             selectAreaDialog.dismiss();
@@ -292,12 +291,10 @@ public class ReceivingInfoActivity extends BaseActivity implements OkHttpCallbac
 
     @Override
     public void onCut(Object o) {
-
     }
 
     @Override
     public void onCopy(Object o) {
-
     }
 
     @Override

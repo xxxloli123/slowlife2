@@ -1,6 +1,7 @@
 package com.android.slowlife;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.DownloadManager;
 import android.content.Context;
@@ -384,6 +385,15 @@ public class MainActivity extends BaseActivity implements APSInterface.OnApsChan
         }
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (getIntent().getExtras()!=null) {
+            button(order);
+            order.setChecked(true);
+        }
+    }
+
     /**
      * 添加管理fragment 并返回
      *
@@ -547,7 +557,7 @@ public class MainActivity extends BaseActivity implements APSInterface.OnApsChan
                                 .enqueue(new SimpleCallback(MainActivity.this) {
                                     @Override
                                     public void onSuccess(String tag, JSONObject json) throws JSONException {
-                                        Toast.makeText(MainActivity.this, json.getString("message"), 0).show();
+                                        Toast.makeText(MainActivity.this, json.getString("message"), Toast.LENGTH_SHORT).show();
                                     }
                                 });
                     }

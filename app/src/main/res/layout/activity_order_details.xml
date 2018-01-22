@@ -563,12 +563,14 @@
                                 android:textSize="12sp" />
 
                             <TextView
+                                android:textIsSelectable="true"
                                 android:id="@+id/order_num"
                                 android:layout_marginLeft="5dp"
                                 android:scrollHorizontally="true"
                                 android:focusableInTouchMode="true"
                                 android:focusable="true"
-                                android:maxLines="1" android:marqueeRepeatLimit="marquee_forever"
+                                android:maxLines="1"
+                                android:marqueeRepeatLimit="marquee_forever"
                                 android:ellipsize="marquee"
                                 android:textSize="12sp" />
                         </TableRow>

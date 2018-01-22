@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -25,6 +26,7 @@ import android.widget.Toast;
 import com.DisplayUtil;
 import com.android.slowlife.BaseFragment;
 import com.android.slowlife.DoneDialog;
+import com.android.slowlife.MainActivity;
 import com.android.slowlife.MsgDialog;
 import com.android.slowlife.R;
 import com.android.slowlife.activity.CityExpressActivity;
@@ -319,7 +321,6 @@ public class PickupHomeFragment extends BaseFragment implements View.OnClickList
         }
     }
 
-
     private void init() {
         try {
             if (tableLayout.getChildCount() > 1)
@@ -422,7 +423,6 @@ public class PickupHomeFragment extends BaseFragment implements View.OnClickList
         new OkHttpClient().newCall(request).enqueue(new Callback(getContext()));
     }
 
-
     class Callback extends SimpleCallback {
         Callback(Context context) {
             super(context);
@@ -478,7 +478,28 @@ public class PickupHomeFragment extends BaseFragment implements View.OnClickList
         public void onFail(JSONObject json) throws JSONException {
             super.onFail(json);
             if (sureBt != null) sureBt.setEnabled(true);
+            if (json.getJSONObject("result").getString("message") .contains("未付款"))
+                goPay();
         }
+    }
+
+    private void goPay() {
+        View view1 = LayoutInflater.from(getContext()).inflate(R.layout.dialog_sure, null);
+        final AlertDialog alertDialog = new AlertDialog.Builder(getContext(), R.style.Theme_AppCompat_DayNight_Dialog).create();
+        Button sure = (Button) view1.findViewById(R.id.sure_bt);
+        sure.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent=new Intent();
+                intent.putExtra("goPay",true);
+                intent.setClass(getContext(), MainActivity.class);
+                getActivity().startActivity( intent);
+                if (getActivity() != null) getActivity().finish();
+                alertDialog.dismiss();
+            }
+        });
+        alertDialog.setView(view1);
+        alertDialog.show();
     }
 
     private void imputedPrice() {
@@ -514,5 +535,4 @@ public class PickupHomeFragment extends BaseFragment implements View.OnClickList
             e.printStackTrace();
         }
     }
-
 }
