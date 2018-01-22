@@ -155,7 +155,6 @@ public class OrderDetailsActivity extends BaseActivity {
     @Bind(R.id.logisticsNumber)
     TextView logisticsNumber;
 
-
     private OrdersEntity oe;
     public static final String ORDER = "order";
     public static final String ORDER_ID = "order_id";

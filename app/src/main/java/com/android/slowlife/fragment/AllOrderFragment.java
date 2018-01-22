@@ -9,6 +9,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
@@ -53,7 +54,6 @@ public class AllOrderFragment extends BaseFragment implements AdapterView.OnItem
     protected int pageSize = 20;
     protected Info info;
 
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -70,7 +70,6 @@ public class AllOrderFragment extends BaseFragment implements AdapterView.OnItem
         srl.setOnRefreshListener(this);
         initPagers();
     }
-
 
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
@@ -96,15 +95,14 @@ public class AllOrderFragment extends BaseFragment implements AdapterView.OnItem
         if (TextUtils.equals(paramName, "type")) {
             type = param;
         } else if (TextUtils.equals(paramName, "status")) status = param;
-
-
         RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
                 .addFormDataPart("userId", info.getId())
                 .addFormDataPart("type", type)
                 .addFormDataPart("pageNum", String.valueOf(++page))
                 .addFormDataPart("status", status)
                 .addFormDataPart("numPerPage", String.valueOf(pageSize)).build();
-        Request request = new Request.Builder().url(Config.Url.getUrl(Config.ORDERLIST)).tag(Config.ORDERLIST).post(requestBody).build();
+        Request request = new Request.Builder().url(Config.Url.getUrl(Config.ORDERLIST)).
+                tag(Config.ORDERLIST).post(requestBody).build();
         new OkHttpClient().newCall(request).enqueue(new Callback(getContext(), srl));
     }
 
@@ -114,7 +112,6 @@ public class AllOrderFragment extends BaseFragment implements AdapterView.OnItem
         if (rootView != null && getUserVisibleHint())
             onRefresh();
     }
-
 
     @Override
     public void onDestroyView() {
@@ -130,6 +127,22 @@ public class AllOrderFragment extends BaseFragment implements AdapterView.OnItem
         ordersAdapter = new OrdersAdapter(getActivity(), list);
         listView.setAdapter(ordersAdapter);
         listView.setOnItemClickListener(this);
+        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                if (firstVisibleItem + visibleItemCount > listView.getAdapter().getCount() - 5
+                        //                          Count 计数 % 除法中的余
+                        && listView.getAdapter().getCount() % 20 == 0
+                        && listView.getAdapter().getCount() != 0) {
+                    loadData();
+                }
+            }
+        });
     }
 
     public static AllOrderFragment newInstance(String pName, String params) {
@@ -140,7 +153,6 @@ public class AllOrderFragment extends BaseFragment implements AdapterView.OnItem
         fragment.setArguments(args);
         return fragment;
     }
-
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -175,7 +187,6 @@ public class AllOrderFragment extends BaseFragment implements AdapterView.OnItem
                     break;
             }
         }
-
 
         @Override
         public void onFail(JSONObject json) throws JSONException {
