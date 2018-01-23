@@ -159,7 +159,6 @@ public class OrderDetailsActivity extends BaseActivity {
     public static final String ORDER = "order";
     public static final String ORDER_ID = "order_id";
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -365,7 +364,6 @@ public class OrderDetailsActivity extends BaseActivity {
                     break;
             }
         }
-
     };
 
     private void loadImg() {

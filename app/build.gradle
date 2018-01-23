@@ -16,8 +16,8 @@ android {
         applicationId "com.android.slowlife"
         minSdkVersion 17
         targetSdkVersion 21
-        versionCode 15
-        versionName '2.5.3'
+        versionCode 17
+        versionName '2.7'
     }
     defaultConfig {
         multiDexEnabled true
