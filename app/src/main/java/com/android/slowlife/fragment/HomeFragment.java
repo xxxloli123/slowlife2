@@ -256,6 +256,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener {
     }
 
     private void setBanner(List<Advertise> advertises){
+        if (myBanner==null)return;
         myBanner.setPages(advertises, new MZHolderCreator<BannerViewHolder>() {
             @Override
             public BannerViewHolder createViewHolder() {

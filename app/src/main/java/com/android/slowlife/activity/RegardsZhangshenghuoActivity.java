@@ -133,7 +133,7 @@ public class RegardsZhangshenghuoActivity extends BaseActivity implements View.O
                             }
                         });
                     } else {
-                        Toast.makeText(context, "已安装最新版", Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(context, "已安装最新版", Toast.LENGTH_SHORT).show();
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
